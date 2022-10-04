@@ -105,9 +105,6 @@ class BootstrapSplit(BaseBootstrapSplit):
     ----------
     n_splits: int, default=10
         Number of bootstrap rounds. Must at least be 2.
-    shuffle: bool, default=False
-        Whether to shuffle the data before splitting into batches.
-        Note that the samples within each split will not be shuffled.
     random_state : int, RandomState instance or None, default=None
         When `shuffle` is True, `random_state` affects the ordering of the
         indices, which controls the randomness of each fold for each class.
