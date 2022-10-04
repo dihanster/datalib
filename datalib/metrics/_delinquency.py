@@ -14,8 +14,8 @@ import numpy as np
 class DeliquencyDisplay:
     """Deliquency curve visualization.
     It is recommended to use
-    :func:`~sklearn.calibration.CalibrationDisplay.from_estimator` or
-    :func:`~sklearn.calibration.CalibrationDisplay.from_predictions`
+    :func:`~datalib.metrics.DeliquencyDisplay.from_estimator` or
+    :func:`~datalib.metrics.DeliquencyDisplay.from_predictions`
     to create a `DeliquencyDisplay`. All parameters are stored as attributes.
 
     Parameters
