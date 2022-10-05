@@ -1,5 +1,4 @@
 import numbers
-import warnings
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
@@ -92,7 +91,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
 
 
 class BootstrapSplit(BaseBootstrapSplit):
-    """Bootstrap K-Folds cross-validator
+    """Bootstrap split cross-validator
 
     Provides train/test indices to split data in bootstraped train/test sets.
     The folds are determined by the number of bootstrap iterations. 
@@ -106,9 +105,6 @@ class BootstrapSplit(BaseBootstrapSplit):
     n_splits: int, default=10
         Number of bootstrap rounds. Must at least be 2.
     random_state : int, RandomState instance or None, default=None
-        When `shuffle` is True, `random_state` affects the ordering of the
-        indices, which controls the randomness of each fold for each class.
-        Otherwise, leave `random_state` as `None`.
         Pass an int for reproducible output across multiple function calls.
     
     Examples
