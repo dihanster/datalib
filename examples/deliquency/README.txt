@@ -3,4 +3,4 @@
 Deliquency 
 -----------------------
 
-Examples epitomising the deliquency analysis of binary classification.
+Examples epitomising the delinquency analysis of a binary classification.
