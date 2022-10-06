@@ -324,11 +324,11 @@ def delinquency_curve(y_true, y_proba, pos_label=None):
     Returns
     -------
     approval_rate: array.
-        An array containing the approval rates used to compute the default_rate
-        curve.
+        An array containing the approval rates used to compute the default_rate curve.
     default_rate: array.
         An array containing the default rates values for the approval rates provided in approval_rate.
-
+    optimal_rate: array.
+        An array containing the optimal default rates for a perfect model.
     """
     labels = np.unique(y_true)
     if len(labels) > 2:
@@ -346,6 +346,7 @@ def delinquency_curve(y_true, y_proba, pos_label=None):
 
     scores_idxs = np.argsort(y_proba)[::1]
     actual_idxs = np.argsort(y_true)[::1]
+    
     y_true_sorted_by_scores = y_true[scores_idxs].copy()
     y_true_sorted = y_true[actual_idxs].copy()
 
