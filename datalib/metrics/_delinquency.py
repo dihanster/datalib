@@ -176,7 +176,6 @@ class DeliquencyDisplay:
             The positive class when computing the calibration curve.
             By default, `estimators.classes_[1]` is considered as the
             positive class.
-            .. versionadded:: 1.1
         name : str, default=None
             Name for labeling curve. If `None`, the name of the estimator is
             used.
@@ -257,7 +256,6 @@ class DeliquencyDisplay:
             The positive class when computing the calibration curve.
             By default, `estimators.classes_[1]` is considered as the
             positive class.
-            .. versionadded:: 1.1
         name : str, default=None
             Name for labeling curve.
         ref_line : bool, default=True
