@@ -20,20 +20,18 @@ class DeliquencyDisplay:
 
     Parameters
     ----------
-    prob_true : ndarray of shape (n_bins,)
-        The proportion of samples whose class is the positive class (fraction
-        of positives), in each bin.
-    prob_pred : ndarray of shape (n_bins,)
-        The mean predicted probability in each bin.
-    y_prob : ndarray of shape (n_samples,)
-        Probability estimates for the positive class, for each sample.
+    approval_rate : ndarray of shape (n_bins,)
+        The relative percentage population approved.
+    default_rate : ndarray of shape (n_bins,)
+        The default rate, a.k.a relative percentage of positives on the sample.
+    optimal_rate : ndarray of shape (n_bins,)
+        The optimal default rate.
     estimator_name : str, default=None
         Name of estimator. If None, the estimator name is not shown.
     pos_label : str or int, default=None
         The positive class when computing the calibration curve.
         By default, `estimators.classes_[1]` is considered as the
         positive class.
-        .. versionadded:: 1.1
     Attributes
     ----------
     line_ : matplotlib Artist
@@ -63,17 +61,18 @@ class DeliquencyDisplay:
     >>> clf.fit(X_train, y_train)
     LogisticRegression(random_state=0)
     >>> y_prob = clf.predict_proba(X_test)[:, 1]
-    >>> approval_rate, default_rate = delinquency_curve(y_test, y_prob)
-    >>> disp = DeliquencyDisplay(approval_rate, default_rate)
+    >>> approval_rate, default_rate, optimal_rate = delinquency_curve(y_test, y_prob)
+    >>> disp = DeliquencyDisplay(approval_rate, default_rate, optimal_rate)
     >>> disp.plot()
     <...>
     """
 
     def __init__(
-        self, approval_rate, default_rate, *, estimator_name=None, pos_label=None
+        self, approval_rate, default_rate, optimal_rate, *, estimator_name=None, pos_label=None
     ):
         self.approval_rate = approval_rate
         self.default_rate = default_rate
+        self.optimal_rate = optimal_rate
         self.estimator_name = estimator_name
         self.pos_label = pos_label
 
@@ -115,17 +114,17 @@ class DeliquencyDisplay:
             line_kwargs["label"] = name
         line_kwargs.update(**kwargs)
 
-        # ref_line_label = "Perfectly calibrated"
-        # existing_ref_line = ref_line_label in ax.get_legend_handles_labels()[1]
-        # if ref_line and not existing_ref_line:
-        #    ax.plot([0, 1], [0, 1], "k:", label=ref_line_label)
+        ref_line_label = "The optimal default rate"
+        existing_ref_line = ref_line_label in ax.get_legend_handles_labels()[1]
+        if ref_line and not existing_ref_line:
+            ax.plot(self.approval_rate, self.optimal_rate, "k:", label=ref_line_label)
         self.line_ = ax.plot(
             self.approval_rate, self.default_rate, "s-", **line_kwargs
         )[0]
 
         ax.legend(loc="lower right")
 
-        xlabel = f"Relative percentage of population approved {info_pos_label}"
+        xlabel = f"Relative percentage of approvals on the population {info_pos_label}"
         ylabel = f"Default Rate {info_pos_label}"
         ax.set(xlabel=xlabel, ylabel=ylabel)
 
@@ -291,7 +290,7 @@ class DeliquencyDisplay:
         method_name = f"{cls.__name__}.from_estimator"
         check_matplotlib_support(method_name)
 
-        approval_rate, default_rate = delinquency_curve(
+        approval_rate, default_rate, optimal_rate = delinquency_curve(
             y_true, y_prob, pos_label=pos_label
         )
         name = "Classifier" if name is None else name
@@ -300,6 +299,7 @@ class DeliquencyDisplay:
         disp = cls(
             approval_rate=approval_rate,
             default_rate=default_rate,
+            optimal_rate=optimal_rate,
             estimator_name=name,
             pos_label=pos_label,
         )
@@ -319,10 +319,8 @@ def delinquency_curve(y_true, y_proba, pos_label=None):
     ----------
     y_true : array, shape = [n_samples]
         Correct labels for given dataset.
-    y_score : array, shape = [n_samples]
+    y_proba : array, shape = [n_samples]
         Predicted probability scores for the given dataset.
-    pointwise : bool, optional
-        boolean indicating whether to compute pointwise delinquency curve.
     Returns
     -------
     approval_rate: array.
@@ -347,10 +345,13 @@ def delinquency_curve(y_true, y_proba, pos_label=None):
     y_true = y_true == pos_label
 
     scores_idxs = np.argsort(y_proba)[::1]
-    y_true_sorted = y_true[scores_idxs].copy()
+    actual_idxs = np.argsort(y_true)[::1]
+    y_true_sorted_by_scores = y_true[scores_idxs].copy()
+    y_true_sorted = y_true[actual_idxs].copy()
 
-    list_index = np.arange(1, len(y_true_sorted) + 1)
+    list_index = np.arange(1, len(y_true_sorted_by_scores) + 1)
     approval_rate = np.append(0, list_index / len(list_index))
-    default_rate = np.append(0, y_true_sorted.cumsum() / list_index)
+    default_rate = np.append(0, y_true_sorted_by_scores.cumsum() / list_index)
+    optimal_rate = np.append(0, y_true_sorted.cumsum() / list_index)
 
-    return approval_rate, default_rate
+    return approval_rate, default_rate, optimal_rate
