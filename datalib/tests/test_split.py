@@ -3,7 +3,9 @@ import pytest
 import warnings
 import numpy as np
 
+from sklearn.utils.validation import _num_samples
 from sklearn.utils._testing import ignore_warnings
+
 from ..model_selection.model_selection import BootstrapSplit
 
 
@@ -71,3 +73,57 @@ def test_2d_y():
                 allowed_target_types
             )
             assert msg in str(e)
+
+
+def check_valid_split(train, test, n_samples=None):
+    # Use python sets to get more informative assertion failure messages
+    train, test = set(train), set(test)
+
+    # Train and test split should not overlap
+    assert train.intersection(test) == set()
+
+    if n_samples is not None:
+        # Check that the union of train an test split cover all the indices
+        assert train.union(test) == set(range(n_samples))
+
+def check_cv_coverage(cv, X, y, groups, expected_n_splits):
+    n_samples = _num_samples(X)
+    # Check that a all the samples appear at least once in a test fold
+    assert cv.get_n_splits(X, y, groups) == expected_n_splits
+
+    collected_test_samples = set()
+    iterations = 0
+    for train, test in cv.split(X, y, groups):
+        check_valid_split(train, test, n_samples=n_samples)
+        iterations += 1
+        collected_test_samples.update(test)
+
+    # Check that the accumulated test samples cover the whole dataset
+    # This one won't work for the bootstrap split for obvious reasons
+    # assert iterations == expected_n_splits
+    # if n_samples is not None:
+    #     assert collected_test_samples == set(range(n_samples))
+
+def test_split_valueerrors():
+    # Error when number of folds is <= 1
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits = 0)
+
+    # When n_splits is not integer:
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits = 1.5)
+
+def test_split_indices():
+    # Check all indices are returned in the test folds
+    X1 = np.ones(18)
+    boot = BootstrapSplit(n_splits = 3)
+    check_cv_coverage(boot, X1, y=None, groups=None, expected_n_splits=3)
+
+    # Check all indices are returned in the test folds even when equal-sized
+    # folds are not possible
+    X2 = np.ones(17)
+    boot = BootstrapSplit(3)
+    check_cv_coverage(boot, X2, y=None, groups=None, expected_n_splits=3)
+
+    # Check if get_n_splits returns the number of folds
+    assert 5 == BootstrapSplit(5).get_n_splits(X2)
