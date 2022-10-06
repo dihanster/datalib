@@ -68,7 +68,13 @@ class DeliquencyDisplay:
     """
 
     def __init__(
-        self, approval_rate, default_rate, optimal_rate, *, estimator_name=None, pos_label=None
+        self,
+        approval_rate,
+        default_rate,
+        optimal_rate,
+        *,
+        estimator_name=None,
+        pos_label=None,
     ):
         self.approval_rate = approval_rate
         self.default_rate = default_rate
@@ -346,7 +352,7 @@ def delinquency_curve(y_true, y_proba, pos_label=None):
 
     scores_idxs = np.argsort(y_proba)[::1]
     actual_idxs = np.argsort(y_true)[::1]
-    
+
     y_true_sorted_by_scores = y_true[scores_idxs].copy()
     y_true_sorted = y_true[actual_idxs].copy()
 
