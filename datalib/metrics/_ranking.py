@@ -1,16 +1,23 @@
 import numpy as np
 
 from sklearn.utils.multiclass import type_of_target
-from sklearn.utils import check_array, column_or_1d
+from sklearn.utils import (
+    check_array,
+    column_or_1d,
+    check_consistent_length,
+    assert_all_finite
+)
 from sklearn.preprocessing import label_binarize
 
 from sklearn.metrics._base import (
     _average_binary_score, 
-    _average_multiclass_ovo_score
+    _average_multiclass_ovo_score,
+    _check_pos_label_consistency
 )
 from sklearn.metrics import roc_curve
 
 from sklearn.utils._encode import _encode, _unique
+from sklearn.utils.validation import _check_sample_weight
 
 def ks_score(
     y_true,
@@ -116,24 +123,15 @@ def ks_score(
 
     References
     ----------
-    .. [1] `Wikipedia entry for the Receiver operating characteristic
+    .. [1] `On the equivalence between Kolmogorov-Smirnov and ROC curve metrics
+            for binary classification. Adeodato, P., Melo, S. (2016)
+            <https://arxiv.org/pdf/1606.00496.pdf>`_
+
+    .. [2] `Wikipedia entry for the Kolmogorov–Smirnov test
+            <https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test>`_
+
+    .. [3] `Wikipedia entry for the Receiver operating characteristic
             <https://en.wikipedia.org/wiki/Receiver_operating_characteristic>`_
-
-    .. [2] `Analyzing a portion of the ROC curve. McClish, 1989
-            <https://www.ncbi.nlm.nih.gov/pubmed/2668680>`_
-
-    .. [3] Provost, F., Domingos, P. (2000). Well-trained PETs: Improving
-           probability estimation trees (Section 6.2), CeDER Working Paper
-           #IS-00-04, Stern School of Business, New York University.
-
-    .. [4] `Fawcett, T. (2006). An introduction to ROC analysis. Pattern
-            Recognition Letters, 27(8), 861-874.
-            <https://www.sciencedirect.com/science/article/pii/S016786550500303X>`_
-
-    .. [5] `Hand, D.J., Till, R.J. (2001). A Simple Generalisation of the Area
-            Under the ROC Curve for Multiple Class Classification Problems.
-            Machine Learning, 45(2), 171-186.
-            <http://link.springer.com/article/10.1023/A:1010920819831>`_
 
     Examples
     --------
@@ -350,3 +348,83 @@ def _multiclass_ks_score(
             average,
             sample_weight=sample_weight,
         )
+
+def numpy_fill(arr):
+    '''Solution provided by Divakar.
+    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array'''
+    mask = np.isnan(arr)
+    idx = np.where(~mask,np.arange(mask.shape[0]),0)
+    np.maximum.accumulate(idx, axis=0, out=idx)
+    out = arr[idx]
+    return out
+
+def scipy_inspired(data1, data2, wei1, wei2):
+    ix1 = np.argsort(data1)
+    ix2 = np.argsort(data2)
+    
+    min_data = np.min([data1[ix1[0]], data2[ix2[0]]])
+    max_data = np.max([data1[ix1[-1]], data2[ix2[-1]]])
+    
+    data1 = np.hstack([min_data, data1[ix1], max_data])
+    data2 = np.hstack([min_data, data2[ix2], max_data])
+    wei1 = wei1[ix1]
+    wei2 = wei2[ix2]
+    data = np.sort(np.concatenate([data1, data2]))
+    cwei1 = np.hstack([min_data, np.cumsum(wei1) / np.sum(wei1), max_data])
+    cwei2 = np.hstack([min_data, np.cumsum(wei2) / np.sum(wei2), max_data])
+
+    data = np.sort(np.concatenate([data1, data2]))
+    distinct_value_indices = np.where(np.diff(data))[0]
+    threshold_idxs = np.r_[distinct_value_indices, data.size - 1]
+
+    dic1 = dict(zip(data1, cwei1))
+    dic1.update({min_data:0, max_data:1})
+    y1 = np.array(list(map(dic1.get, data[threshold_idxs])))
+    y1 = numpy_fill(y1.astype(float))
+
+    dic2 = dict(zip(data2, cwei2))
+    dic2.update({min_data:0, max_data:1})
+    y2 = np.array(list(map(dic2.get, data[threshold_idxs])))
+    y2 = numpy_fill(y2.astype(float))
+    
+    return y1, y2, data[threshold_idxs]
+
+def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
+    # Check to make sure y_true is valid
+    y_type = type_of_target(y_true, input_name="y_true")
+    if not (y_type == "binary" or (y_type == "multiclass" and pos_label is not None)):
+        raise ValueError("{0} format is not supported".format(y_type))
+
+    check_consistent_length(y_true, y_score, sample_weight)
+    y_true = column_or_1d(y_true)
+    y_score = column_or_1d(y_score)
+    assert_all_finite(y_true)
+    assert_all_finite(y_score)
+
+    if sample_weight is not None:
+        sample_weight = column_or_1d(sample_weight)
+        sample_weight = _check_sample_weight(sample_weight, y_true)
+        nonzero_weight_mask = sample_weight != 0
+        y_true = y_true[nonzero_weight_mask]
+        y_score = y_score[nonzero_weight_mask]
+        sample_weight = sample_weight[nonzero_weight_mask]
+
+    pos_label = _check_pos_label_consistency(pos_label, y_true)
+
+    # make y_true a boolean vector
+    y_true = y_true == pos_label
+
+    mask_pos = y_true==pos_label
+    z1 = y_score[mask_pos]
+    z0 = y_score[~mask_pos]
+
+    if sample_weight is not None:
+        w1 = sample_weight[mask_pos]
+        w0 = sample_weight[~mask_pos]
+    else:
+        w1 = np.ones(z1.shape)
+        w0 = np.ones(z0.shape)
+
+    acum1, acum0, thresholds = scipy_inspired(z1, z0, w1, w0)
+    return acum1, acum0, thresholds
+
