@@ -75,14 +75,3 @@ def test_calibration_display_compute(iris_data_binary):
     assert len(legend_labels) == len(expected_legend_labels)
     for labels in legend_labels:
         assert labels.get_text() in expected_legend_labels
-
-def test_output(iris_data_binary):
-    X, y = iris_data_binary
-
-    lr = LogisticRegression().fit(X, y)
-
-    viz = DeliquencyDisplay.from_estimator(lr, X, y)
-
-    y_prob = lr.predict_proba(X)
-    print(y_prob)
-    assert False
