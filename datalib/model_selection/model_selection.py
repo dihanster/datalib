@@ -86,7 +86,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
 
 
 class BootstrapSplit(BaseBootstrapSplit):
-    """Bootstrap split cross-validator
+    """Bootstrap K-Folds cross-validator
 
     Provides train/test indices to split data in bootstraped train/test sets.
     The folds are determined by the number of bootstrap iterations. 
@@ -100,6 +100,9 @@ class BootstrapSplit(BaseBootstrapSplit):
     n_splits: int, default=10
         Number of bootstrap rounds. Must at least be 2.
     random_state : int, RandomState instance or None, default=None
+        When `shuffle` is True, `random_state` affects the ordering of the
+        indices, which controls the randomness of each fold for each class.
+        Otherwise, leave `random_state` as `None`.
         Pass an int for reproducible output across multiple function calls.
     
     Examples
@@ -127,20 +130,23 @@ class BootstrapSplit(BaseBootstrapSplit):
     split. You can make the results identical by setting `random_state`
     to an integer.
     """
-    def __init__(self, n_splits: int = 5, *, random_state=None):
-        super().__init__(n_splits=n_splits, random_state=random_state)
+    def __init__(self, n_splits: int = 5, *, random_state = None, n_samples = None):
+        super().__init__(n_splits = n_splits, random_state = random_state, n_samples = n_samples)
 
     def _iter_indices(self, X, y=None, groups=None):
-        n_samples = _num_samples(X)
-        indices = np.arange(n_samples)
+        if self.n_samples == None:
+            self.n_samples = _num_samples(X)
+            indices = np.arange(self.n_samples)
+        else:
+            indices = np.arange(_num_samples(X))
         # maybe we need a validate_bootstrap_split function here TBD
-
         rng = check_random_state(self.random_state)
-        for i in range(self.n_splits):
+        # generate random states from the random seed for reproducibility
+        random_states = rng.randint(low = 0, high = 2**32 - 1, size = self.n_splits, dtype=np.int64)
+        for i, rs in zip(range(self.n_splits), random_states):
             # generate a bootstrap sample
-            train_index = resample(indices, replace = True, random_state = rng)
+            train_index = resample(indices, replace = True, n_samples = self.n_samples, random_state = rs, )
             test_index = list(set(indices).difference(set(train_index)))
             # assert the test_index is not empty
             assert len(test_index) != 0, f'Test set is empty for bootstrap round {i}'
             yield train_index, test_index
-
