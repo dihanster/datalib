@@ -17,9 +17,9 @@ def cap_curve(
     sample_weight=None,
 ):
     """
-    Calculates the Cumulative Accuracy Profile (CAP Curve), calculating the
-    cumulative gain at each threshold of the percentage of sample examples
-    versus the percentage of class 1 examples.
+    Base method to calculate the Cumulative Accuracy Profile Curve (CAP Curve).
+    This metric ponders the rate of positive samples and the percentage of the
+    dataset covered by each sequential cut-off threshold.
 
     Parameters
     ----------
@@ -49,9 +49,7 @@ def cap_curve(
     y_score = check_array(y_score, ensure_2d=False)
     check_consistent_length(y_true, y_score, sample_weight)
 
-    if y_type != "binary":
-        raise NotImplementedError("Only binary class supported!")
-    else:
+    if y_type == "binary":
         weights = np.ones(len(y_true)) if sample_weight is None else sample_weight
 
         ranking = np.argsort(y_score)[::-1]
@@ -64,3 +62,5 @@ def cap_curve(
         gini = (2 * roc_auc_score(y_true, y_score, sample_weight=weights)) - 1
 
         return cumulative_gains, thresholds, gini
+    else:
+        raise NotImplementedError("Only binary class supported!")
