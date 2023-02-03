@@ -1,13 +1,78 @@
 import numpy as np
 import pytest
 
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_almost_equal, assert_array_equal, assert_array_almost_equal
+from sklearn import datasets
+from sklearn import svm
+from sklearn.metrics import roc_auc_score
+from sklearn.utils.validation import check_random_state
 
 from datalib.metrics import cap_curve
 
 
-def test_cap_curve__success_case():
+def make_prediction(dataset=None, binary=True, score=True):
+    """Make some classification predictions on a toy dataset using a SVC
+    """
 
+    if dataset is None:
+        dataset = datasets.load_iris()
+
+    X = dataset.data
+    y = dataset.target
+    
+    if binary is True:
+        # restrict to a binary classification task
+        X, y = X[y < 2], y[y < 2]
+    
+    n_samples, n_features = X.shape
+    p = np.arange(n_samples)
+
+    rng = check_random_state(37)
+    rng.shuffle(p)
+    X, y = X[p], y[p]
+    half = int(n_samples / 2)
+
+    # add noisy features to make the problem harder and avoid perfect results
+    rng = np.random.RandomState(0)
+    X = np.c_[X, rng.randn(n_samples, 200 * n_features)]
+
+    # run classifier, get class probabilities and label predictions
+    clf = svm.SVC(kernel="linear", probability=True, random_state=0)
+    clf.fit(X[:half], y[:half])
+
+    if score is True:
+        y_score = clf.predict_proba(X[half:])
+        if binary is True:
+            y_score = y_score[:, 1]
+    else:
+        y_score = clf.decision_function(X[half:])
+
+    y_pred = clf.predict(X[half:])
+    y_true = y[half:]
+    return y_true, y_pred, y_score
+
+
+def test_cap_curve():
+    # With scores (predict_proba)
+    y_true, _, y_score = make_prediction()
+    expected_gini = (2 * roc_auc_score(y_true, y_score)) - 1
+
+    cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
+
+    assert_array_almost_equal(gini, expected_gini, decimal=2)    
+    assert cumulative_gain.shape == thresholds.shape
+
+    # With decision function
+    y_true, _, y_score = make_prediction(score=False)
+    expected_gini = (2 * roc_auc_score(y_true, y_score)) - 1
+
+    cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
+
+    assert_array_almost_equal(gini, expected_gini, decimal=2)    
+    assert cumulative_gain.shape == thresholds.shape
+
+
+def test_cap_curve_toy_data():
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
     cumulative_gain, thresholds, gini = cap_curve(y_true, y_scores)
@@ -17,8 +82,7 @@ def test_cap_curve__success_case():
     assert gini == 0.5
 
 
-def test_cap_curve__multiclass_exception():
-
+def test_cap_curve_multiclass_exception():
     y_true = np.array([0, 0, 1, 1, 2])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8, 0.04])
 
@@ -29,3 +93,33 @@ def test_cap_curve__multiclass_exception():
         str(exc_info.value)
         == "Only binary class supported!"
     )
+
+
+def test_gini():
+    # Test GINI score computation
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+
+    _, _, gini = cap_curve(y_true, y_scores)
+    assert_array_almost_equal(gini, 0.5)
+
+
+def test_cap_curve_gain_increasing():
+    y_true, _, y_score = make_prediction()
+    cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
+
+    assert (np.diff(cumulative_gain) < 0).sum() == 0
+    assert (np.diff(thresholds) < 0).sum() == 0
+
+
+def test_cap_curve_end_points():
+    y_true, _, y_score = make_prediction()
+    cumulative_gain, thresholds, _ = cap_curve(y_true, y_score)
+
+    assert cumulative_gain[0] == 0
+    assert cumulative_gain[-1] == 1
+
+
+#TODO:
+def test_cap_curve_sample_weight():
+    pass
