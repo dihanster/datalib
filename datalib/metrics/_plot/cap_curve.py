@@ -8,7 +8,7 @@ from sklearn.metrics._base import _check_pos_label_consistency
 from sklearn.metrics._plot.base import _get_response
 from sklearn.utils import check_matplotlib_support
 
-from datalib.metrics import cap_curve
+from .. import cap_curve
 
 class CAPCurveDisplay:
     """CAP Curve visualization.
@@ -206,6 +206,7 @@ class CAPCurveDisplay:
         Examples
         --------
         >>> import matplotlib.pyplot as plt
+        >>> from datalib.metrics import CAPCurveDisplay
         >>> from sklearn.datasets import make_classification
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.svm import SVC
@@ -252,14 +253,14 @@ class CAPCurveDisplay:
         ax=None,
         **kwargs,
     ):
-        """Plot CAP curve given the true and predicted values.
+        """Plot CAP curve given the true and predicted score.
 
         Parameters
         ----------
         y_true : array-like of shape (n_samples,)
             True labels.
 
-        y_pred : array-like of shape (n_samples,)
+        y_score : array-like of shape (n_samples,)
             Target scores, can either be probability estimates of the positive
             class, confidence values, or non-thresholded measure of decisions
             (as returned by “decision_function” on some classifiers).
@@ -299,13 +300,14 @@ class CAPCurveDisplay:
         Examples
         --------
         >>> import matplotlib.pyplot as plt
+        >>> from datalib.metrics import CAPCurveDisplay
         >>> from sklearn.datasets import make_classification
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.svm import SVC
         >>> X, y = make_classification(random_state=0)
         >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-        >>> clf = SVC(random_state=0).fit(X_train, y_train)
-        >>> y_pred = clf.decision_function(X_test)
+        >>> clf = SVC(random_state=0, probability=True).fit(X_train, y_train)
+        >>> y_pred = clf.predict_proba(X_test)[:, 1]
         >>> CAPCurveDisplay.from_predictions(y_test, y_pred)
         >>> plt.show()
         """
