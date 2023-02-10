@@ -37,7 +37,6 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
                 "The number of samples must be of Integral type. "
                 "%s of type %s was passed." % (n_samples, type(n_samples))
             )
-            n_samples = int(n_samples)
     
     def split(self, X, y = None, groups = None):
         """Generate indices to split data into training and test set.
@@ -92,6 +91,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
 
     def __repr__(self):
         return _build_repr(self)
+    
 
 class BootstrapSplit(BaseBootstrapSplit):
     """Bootstrap K-Folds cross-validator

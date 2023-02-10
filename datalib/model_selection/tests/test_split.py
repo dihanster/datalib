@@ -11,11 +11,6 @@ from datalib.model_selection import BootstrapSplit
 
 @ignore_warnings
 def test_cross_validator_with_default_params():
-    n_samples = 4
-    n_unique_groups = 4
-    n_splits = 2
-    p = 2
-    n_shuffle_splits = 10  # (the default value)
 
     X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
     X_1d = np.array([1, 2, 3, 4, 5])
