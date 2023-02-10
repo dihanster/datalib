@@ -1,12 +1,12 @@
 """Test the split module"""
+import numpy as np
 import pytest
 import warnings
-import numpy as np
 
-from sklearn.utils.validation import _num_samples
 from sklearn.utils._testing import ignore_warnings
+from sklearn.utils.validation import _num_samples
 
-from ..model_selection.model_selection import BootstrapSplit
+from datalib.model_selection import BootstrapSplit
 
 
 @ignore_warnings
@@ -17,17 +17,13 @@ def test_cross_validator_with_default_params():
     p = 2
     n_shuffle_splits = 10  # (the default value)
 
-    X = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
-    X_1d = np.array([1, 2, 3, 4])
-    y = np.array([1, 1, 2, 2])
-    groups = np.array([1, 2, 3, 4])
+    X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
+    X_1d = np.array([1, 2, 3, 4, 5])
+    y = np.array([1, 1, 2, 2, 2])
+    groups = np.array([1, 2, 3, 4, 5])
 
-    splitters = [
-        BootstrapSplit(random_state = 0)
-    ]
-    reprs = [
-        "BootstrapSplit(n_splits=5, random_state=0)"
-    ]
+    splitters = [BootstrapSplit(random_state=42)]
+    reprs = ["BootstrapSplit(n_samples=5, n_splits=5, random_state=42)"]
     n_splits_expected = [
         5
     ]
@@ -127,3 +123,4 @@ def test_split_indices():
 
     # Check if get_n_splits returns the number of folds
     assert 5 == BootstrapSplit(5).get_n_splits(X2)
+

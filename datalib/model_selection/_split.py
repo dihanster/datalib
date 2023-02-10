@@ -7,15 +7,17 @@ from sklearn.utils import check_random_state, indexable, resample
 from sklearn.utils.validation import _num_samples
 
 
+
 class BaseBootstrapSplit(metaclass = ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
     
     Implementations must define `_iter_indices`
     """
     
-    def __init__(self, n_splits: int = 10, *,  random_state: int = None):
+    def __init__(self, n_splits: int = 10, *,  random_state: int = None, n_samples : int = None):
         self.n_splits = n_splits
         self.random_state = random_state
+        self.n_samples = n_samples
         if not isinstance(n_splits, numbers.Integral):
             raise ValueError(
                 "The number of folds must be of Integral type. "
@@ -29,6 +31,13 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
                 " train/test split by setting n_splits=2 or more,"
                 " got n_splits={0}.".format(n_splits)
             )
+        
+        if (n_samples != None) and (not isinstance(n_samples, numbers.Integral)):
+            raise ValueError(
+                "The number of samples must be of Integral type. "
+                "%s of type %s was passed." % (n_samples, type(n_samples))
+            )
+            n_samples = int(n_samples)
     
     def split(self, X, y = None, groups = None):
         """Generate indices to split data into training and test set.
@@ -84,7 +93,6 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
     def __repr__(self):
         return _build_repr(self)
 
-
 class BootstrapSplit(BaseBootstrapSplit):
     """Bootstrap K-Folds cross-validator
 
@@ -130,7 +138,7 @@ class BootstrapSplit(BaseBootstrapSplit):
     split. You can make the results identical by setting `random_state`
     to an integer.
     """
-    def __init__(self, n_splits: int = 5, *, random_state = None, n_samples = None):
+    def __init__(self, n_splits: int =5, *, random_state=None, n_samples=None):
         super().__init__(n_splits = n_splits, random_state = random_state, n_samples = n_samples)
 
     def _iter_indices(self, X, y=None, groups=None):
@@ -145,7 +153,7 @@ class BootstrapSplit(BaseBootstrapSplit):
         random_states = rng.randint(low = 0, high = 2**32 - 1, size = self.n_splits, dtype=np.int64)
         for i, rs in zip(range(self.n_splits), random_states):
             # generate a bootstrap sample
-            train_index = resample(indices, replace = True, n_samples = self.n_samples, random_state = rs, )
+            train_index = resample(indices, replace = True, n_samples = self.n_samples, random_state = rs)
             test_index = list(set(indices).difference(set(train_index)))
             # assert the test_index is not empty
             assert len(test_index) != 0, f'Test set is empty for bootstrap round {i}'
