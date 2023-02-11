@@ -1,4 +1,4 @@
-name: lint-ubuntu-latest
+name: flake8-ubuntu-latest
 
 on:
 
@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  tests:
+  lint:
     runs-on: ubuntu-latest
   
     strategy:
