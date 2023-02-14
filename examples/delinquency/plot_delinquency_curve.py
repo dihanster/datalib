@@ -18,7 +18,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 from sklearn.linear_model import LogisticRegression
-from datalib.metrics import DeliquencyDisplay
+from datalib import DeliquencyDisplay
 
 clf = LogisticRegression()
 
