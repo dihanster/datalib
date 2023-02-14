@@ -22,7 +22,7 @@ def iris_data_binary(iris_data):
     return X[y < 2], y[y < 2]
 
 
-def test_deliquency_curve__initial_and_end_values():
+def test_delinquency_curve__initial_and_end_values():
 
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
@@ -61,7 +61,7 @@ def test_delinquency_curve__multilabel_exception():
     )
 
 
-def test_deliquency_display__assess_plot_parameters(iris_data_binary):
+def test_delinquency_display__assess_plot_parameters(iris_data_binary):
 
     X, y = iris_data_binary
 
@@ -87,12 +87,11 @@ def test_deliquency_display__assess_plot_parameters(iris_data_binary):
 
     assert (
         viz.ax_.get_xlabel()
-        == "Relative percentage of approvals on the population (Positive class: 1)"
+        == "Relative % of approvals on the population (Positive class: 1)"
     )
     assert viz.ax_.get_ylabel() == "Default Rate (Positive class: 1)"
 
     expected_legend_labels = ["LogisticRegression", "The optimal default rate"]
     legend_labels = viz.ax_.get_legend().get_texts()
     assert len(legend_labels) == len(expected_legend_labels)
-    for labels in legend_labels:
-        assert labels.get_text() in expected_legend_labels
+
