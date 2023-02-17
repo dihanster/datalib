@@ -73,6 +73,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
     
     def get_n_splits(self, X=None, y=None, groups=None):
         """Returns the number of splitting iterations in the cross-validator
+
         Parameters
         ----------
         X : object
