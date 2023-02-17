@@ -1,14 +1,9 @@
 import numpy as np
 import pytest
 
-from ..metrics import delinquency_curve, DeliquencyDisplay
-from numpy.testing import (
-    assert_array_equal,
-    assert_almost_equal,
-    assert_allclose,
-)
+from .._ranking import delinquency_curve
+from numpy.testing import assert_array_equal, assert_almost_equal
 from sklearn.datasets import load_iris
-from sklearn.linear_model import LogisticRegression
 
 
 @pytest.fixture(scope="module")
@@ -56,37 +51,3 @@ def test_delinquency_curve__multilabel_exception():
         str(exc_info.value)
         == "Only binary classification is supported. Provided [0 1 2]."
     )
-
-
-def test_delinquency_display__assess_plot_parameters(iris_data_binary):
-    X, y = iris_data_binary
-
-    lr = LogisticRegression().fit(X, y)
-
-    viz = DeliquencyDisplay.from_estimator(lr, X, y)
-
-    y_prob = lr.predict_proba(X)[:, 1]
-    approval_rate, default_rate, optimal_rate = delinquency_curve(y, y_prob)
-
-    assert_allclose(viz.approval_rate, approval_rate)
-    assert_allclose(viz.default_rate, default_rate)
-    assert_allclose(viz.optimal_rate, optimal_rate)
-
-    assert viz.estimator_name == "LogisticRegression"
-
-    # cannot fail thanks to pyplot fixture
-    import matplotlib as mpl  # noqa
-
-    assert isinstance(viz.line_, mpl.lines.Line2D)
-    assert isinstance(viz.ax_, mpl.axes.Axes)
-    assert isinstance(viz.figure_, mpl.figure.Figure)
-
-    assert (
-        viz.ax_.get_xlabel()
-        == "Relative % of approvals on the population (Positive class: 1)"
-    )
-    assert viz.ax_.get_ylabel() == "Default Rate (Positive class: 1)"
-
-    expected_legend_labels = ["LogisticRegression", "The optimal default rate"]
-    legend_labels = viz.ax_.get_legend().get_texts()
-    assert len(legend_labels) == len(expected_legend_labels)
