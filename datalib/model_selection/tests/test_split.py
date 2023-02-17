@@ -90,17 +90,9 @@ def check_cv_coverage(cv, X, y, groups, expected_n_splits):
         collected_test_samples.update(test)
 
 
-def test_split_valueerrors():
-    # Error when number of folds is <= 1
-    with pytest.raises(ValueError):
-        BootstrapSplit(n_splits = 0)
-
-    # When n_splits is not integer:
-    with pytest.raises(ValueError):
-        BootstrapSplit(n_splits = 1.5)
-
 def test_split_indices():
-    # Check all indices are returned in the test folds
+    """Check all indices are returned in the test folds
+    """
     X1 = np.ones(18)
     boot = BootstrapSplit(n_splits = 3)
     check_cv_coverage(boot, X1, y=None, groups=None, expected_n_splits=3)
@@ -113,4 +105,14 @@ def test_split_indices():
 
     # Check if get_n_splits returns the number of folds
     assert 5 == BootstrapSplit(5).get_n_splits(X2)
+
+
+def test_split_valueerrors():
+    # Error when number of folds is <= 1
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits = 0)
+
+    # When n_splits is not integer:
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits = 1.5)
 
