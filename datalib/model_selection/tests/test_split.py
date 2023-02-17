@@ -77,6 +77,7 @@ def check_valid_split(train, test, n_samples=None):
         # Check that the union of train an test split cover all the indices
         assert train.union(test) == set(range(n_samples))
 
+
 def check_cv_coverage(cv, X, y, groups, expected_n_splits):
     n_samples = _num_samples(X)
     # Check that a all the samples appear at least once in a test fold
