@@ -7,7 +7,6 @@ from sklearn.utils import check_random_state, indexable, resample
 from sklearn.utils.validation import _num_samples
 
 
-
 class BaseBootstrapSplit(metaclass = ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
     
