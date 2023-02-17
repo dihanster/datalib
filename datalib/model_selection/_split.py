@@ -7,14 +7,13 @@ from sklearn.utils import check_random_state, indexable, resample
 from sklearn.utils.validation import _num_samples
 
 
-
 class BaseBootstrapSplit(metaclass = ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
     
-    Implementations must define `_iter_indices`
+    Implementations must define `_iter_indices`.
     """
     
-    def __init__(self, n_splits: int = 10, *,  random_state: int = None, n_samples : int = None):
+    def __init__(self, n_splits=10, *,  random_state=None, n_samples=None):
         self.n_splits = n_splits
         self.random_state = random_state
         self.n_samples = n_samples
@@ -74,6 +73,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
     
     def get_n_splits(self, X=None, y=None, groups=None):
         """Returns the number of splitting iterations in the cross-validator
+
         Parameters
         ----------
         X : object
@@ -82,6 +82,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
             Always ignored, exists for compatibility.
         groups : object
             Always ignored, exists for compatibility.
+
         Returns
         -------
         n_splits : int

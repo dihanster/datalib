@@ -1,7 +1,6 @@
 """Test the split module"""
 import numpy as np
 import pytest
-import warnings
 
 from sklearn.utils._testing import ignore_warnings
 from sklearn.utils.validation import _num_samples
@@ -27,9 +26,10 @@ def test_cross_validator_with_default_params():
         assert n_splits_expected[i] == splitter.get_n_splits(X, y, groups)
 
         # Test if the cross-validator works as expected even if
-                # the data is 1d
+        # the data is 1d
         np.testing.assert_equal(
-            list(splitter.split(X, y, groups)), list(splitter.split(X_1d, y, groups))
+            list(splitter.split(X, y, groups)),
+            list(splitter.split(X_1d, y, groups))
         )
 
         # Test if the repr works without any errors
@@ -77,6 +77,7 @@ def check_valid_split(train, test, n_samples=None):
         # Check that the union of train an test split cover all the indices
         assert train.union(test) == set(range(n_samples))
 
+
 def check_cv_coverage(cv, X, y, groups, expected_n_splits):
     n_samples = _num_samples(X)
     # Check that a all the samples appear at least once in a test fold
@@ -89,19 +90,12 @@ def check_cv_coverage(cv, X, y, groups, expected_n_splits):
         iterations += 1
         collected_test_samples.update(test)
 
-def test_split_valueerrors():
-    # Error when number of folds is <= 1
-    with pytest.raises(ValueError):
-        BootstrapSplit(n_splits = 0)
-
-    # When n_splits is not integer:
-    with pytest.raises(ValueError):
-        BootstrapSplit(n_splits = 1.5)
 
 def test_split_indices():
-    # Check all indices are returned in the test folds
+    """Check all indices are returned in the test folds
+    """
     X1 = np.ones(18)
-    boot = BootstrapSplit(n_splits = 3)
+    boot = BootstrapSplit(n_splits=3)
     check_cv_coverage(boot, X1, y=None, groups=None, expected_n_splits=3)
 
     # Check all indices are returned in the test folds even when equal-sized
@@ -113,3 +107,12 @@ def test_split_indices():
     # Check if get_n_splits returns the number of folds
     assert 5 == BootstrapSplit(5).get_n_splits(X2)
 
+
+def test_split_valueerrors():
+    # Error when number of folds is <= 1
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits=0)
+
+    # When n_splits is not integer:
+    with pytest.raises(ValueError):
+        BootstrapSplit(n_splits=1.5)
