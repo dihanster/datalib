@@ -10,7 +10,7 @@ from sklearn.utils.validation import _num_samples
 class BaseBootstrapSplit(metaclass = ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
     
-    Implementations must define `_iter_indices`
+    Implementations must define `_iter_indices`.
     """
     
     def __init__(self, n_splits: int = 10, *,  random_state: int = None, n_samples : int = None):
