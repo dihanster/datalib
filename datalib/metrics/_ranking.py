@@ -1,7 +1,6 @@
 import numpy as np
 
 from sklearn.metrics._base import _check_pos_label_consistency
-from sklearn.metrics._plot.base import _get_response
 from sklearn.utils import (
     check_consistent_length,
     assert_all_finite,
@@ -55,7 +54,7 @@ def delinquency_curve(y_true, y_score, pos_label=None):
     labels = np.unique(y_true)
     if len(labels) > 2:
         raise ValueError(
-            f"Only binary classification is supported. Provided labels {labels}."
+            f"Only binary classification is supported. Provided {labels}."
         )
     y_true = column_or_1d(y_true)
     y_score = column_or_1d(y_score)

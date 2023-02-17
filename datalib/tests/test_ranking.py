@@ -94,4 +94,3 @@ def test_delinquency_display__assess_plot_parameters(iris_data_binary):
     expected_legend_labels = ["LogisticRegression", "The optimal default rate"]
     legend_labels = viz.ax_.get_legend().get_texts()
     assert len(legend_labels) == len(expected_legend_labels)
-
