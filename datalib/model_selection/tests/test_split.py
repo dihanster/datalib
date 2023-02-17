@@ -89,11 +89,6 @@ def check_cv_coverage(cv, X, y, groups, expected_n_splits):
         iterations += 1
         collected_test_samples.update(test)
 
-    # Check that the accumulated test samples cover the whole dataset
-    # This one won't work for the bootstrap split for obvious reasons
-    # assert iterations == expected_n_splits
-    # if n_samples is not None:
-    #     assert collected_test_samples == set(range(n_samples))
 
 def test_split_valueerrors():
     # Error when number of folds is <= 1
