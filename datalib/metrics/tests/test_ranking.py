@@ -1,7 +1,10 @@
+"""
+Module with the test for the cap curve display functions.
+"""
 import numpy as np
 import pytest
 
-from numpy.testing import assert_almost_equal, assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 from sklearn import datasets
 from sklearn import svm
 from sklearn.metrics import roc_auc_score
@@ -11,7 +14,8 @@ from datalib.metrics import cap_curve
 
 
 def make_prediction(dataset=None, binary=True, score=True):
-    """Make some classification predictions on a toy dataset using a SVC
+    """
+    Make some classification predictions on a toy dataset using a SVC model.
     """
 
     if dataset is None:
@@ -19,11 +23,11 @@ def make_prediction(dataset=None, binary=True, score=True):
 
     X = dataset.data
     y = dataset.target
-    
+
     if binary is True:
         # restrict to a binary classification task
         X, y = X[y < 2], y[y < 2]
-    
+
     n_samples, n_features = X.shape
     p = np.arange(n_samples)
 
@@ -53,13 +57,18 @@ def make_prediction(dataset=None, binary=True, score=True):
 
 
 def test_cap_curve():
-    # With scores (predict_proba)
+    """
+    Tests CAP Curve return attributes such as the Gini value and the
+    shape of the cumulative values and thresholds, using scores from the
+    `predict_proba` and `decision_function` of a model.
+    """
+    # With predict_proba
     y_true, _, y_score = make_prediction()
     expected_gini = (2 * roc_auc_score(y_true, y_score)) - 1
 
     cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
 
-    assert_array_almost_equal(gini, expected_gini, decimal=2)    
+    assert_array_almost_equal(gini, expected_gini, decimal=2)
     assert cumulative_gain.shape == thresholds.shape
 
     # With decision function
@@ -68,11 +77,16 @@ def test_cap_curve():
 
     cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
 
-    assert_array_almost_equal(gini, expected_gini, decimal=2)    
+    assert_array_almost_equal(gini, expected_gini, decimal=2)
     assert cumulative_gain.shape == thresholds.shape
 
 
 def test_cap_curve_toy_data():
+    """
+    It tests a simple example for calculating the CAP Curve, comparing
+    it with the expected value for the cumulative values, the threshols
+    and the Gini value.
+    """
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
     cumulative_gain, thresholds, gini = cap_curve(y_true, y_scores)
@@ -83,6 +97,10 @@ def test_cap_curve_toy_data():
 
 
 def test_cap_curve_multiclass_exception():
+    """
+    Tests a multiclass example case, which function should return an error
+    for the CAP Curve.
+    """
     y_true = np.array([0, 0, 1, 1, 2])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8, 0.04])
 
@@ -96,7 +114,9 @@ def test_cap_curve_multiclass_exception():
 
 
 def test_gini():
-    # Test GINI score computation
+    """
+    Test Gini's calculation for a simple example.
+    """
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
 
@@ -105,21 +125,31 @@ def test_gini():
 
 
 def test_cap_curve_gain_increasing():
+    """
+    Tests whether the cumulative gain attribute returned by
+    the function of CAP Curve is increasing.
+    """
     y_true, _, y_score = make_prediction()
-    cumulative_gain, thresholds, gini = cap_curve(y_true, y_score)
+    cumulative_gain, thresholds, _ = cap_curve(y_true, y_score)
 
     assert (np.diff(cumulative_gain) < 0).sum() == 0
     assert (np.diff(thresholds) < 0).sum() == 0
 
 
 def test_cap_curve_end_points():
+    """"
+    Tests whether the end and start points of the CAP curve's
+    cumulative values are consistent with expectations.
+    """
     y_true, _, y_score = make_prediction()
-    cumulative_gain, thresholds, _ = cap_curve(y_true, y_score)
+    cumulative_gain, _, _ = cap_curve(y_true, y_score)
 
     assert cumulative_gain[0] == 0
     assert cumulative_gain[-1] == 1
 
 
-#TODO:
 def test_cap_curve_sample_weight():
-    pass
+    """
+    TODO: Implement a function to test the sample weight
+    calculation for the CAP curve function.
+    """

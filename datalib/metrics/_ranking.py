@@ -1,7 +1,6 @@
 """
-Module containing the main metrics.
+Module containing the main metrics for ranking.
 """
-import matplotlib.pyplot as plt
 import numpy as np
 
 from sklearn.metrics import roc_auc_score
@@ -10,6 +9,8 @@ from sklearn.utils import (
     check_consistent_length,
 )
 from sklearn.utils.multiclass import type_of_target
+from sklearn.utils.validation import _check_sample_weight
+
 
 def cap_curve(
     y_true,
@@ -48,19 +49,19 @@ def cap_curve(
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_score = check_array(y_score, ensure_2d=False)
     check_consistent_length(y_true, y_score, sample_weight)
+    sample_weight = _check_sample_weight(sample_weight, y_true, only_non_negative=True)
 
     if y_type == "binary":
-        weights = np.ones(len(y_true)) if sample_weight is None else sample_weight
 
         ranking = np.argsort(y_score)[::-1]
-        ranked = y_true[ranking] * weights
+        ranked = y_true[ranking] * sample_weight
 
         cumulative_gains = np.append(0, np.cumsum(ranked) / np.sum(ranked))
         thresholds = np.arange(0, len(ranked) + 1) / len(ranked)
 
-        # TODO: Test traditional gini calculation
-        gini = (2 * roc_auc_score(y_true, y_score, sample_weight=weights)) - 1
+        # TODO: Implement traditional gini calculation
+        gini = (2 * roc_auc_score(y_true, y_score, sample_weight=sample_weight)) - 1
 
         return cumulative_gains, thresholds, gini
-    else:
-        raise NotImplementedError("Only binary class supported!")
+
+    raise NotImplementedError("Only binary class supported!")

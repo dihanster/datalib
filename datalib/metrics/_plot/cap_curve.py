@@ -1,5 +1,5 @@
 """
-Module containing the main metrics, curves and displays.
+Module containing the implementar for CAP Curve Display.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +9,7 @@ from sklearn.metrics._plot.base import _get_response
 from sklearn.utils import check_matplotlib_support
 
 from .. import cap_curve
+
 
 class CAPCurveDisplay:
     """CAP Curve visualization.
@@ -107,7 +108,7 @@ class CAPCurveDisplay:
         line_kwargs.update(**kwargs)
 
         if ax is None:
-            fig, ax = plt.subplots()
+            _, ax = plt.subplots()
 
         if plot_random is True:
             ax.plot([0, 1], [0, 1], linestyle="--", label="Random Model")
