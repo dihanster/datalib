@@ -13,7 +13,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
     Implementations must define `_iter_indices`.
     """
     
-    def __init__(self, n_splits: int = 10, *,  random_state: int = None, n_samples : int = None):
+    def __init__(self, n_splits=10, *,  random_state=None, n_samples=None):
         self.n_splits = n_splits
         self.random_state = random_state
         self.n_samples = n_samples
