@@ -82,6 +82,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
             Always ignored, exists for compatibility.
         groups : object
             Always ignored, exists for compatibility.
+
         Returns
         -------
         n_splits : int
