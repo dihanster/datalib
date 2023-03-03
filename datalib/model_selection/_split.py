@@ -7,12 +7,12 @@ from sklearn.utils import check_random_state, indexable, resample
 from sklearn.utils.validation import _num_samples
 
 
-class BaseBootstrapSplit(metaclass = ABCMeta):
+class BaseBootstrapSplit(metaclass=ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
     
     Implementations must define `_iter_indices`.
     """
-    
+
     def __init__(self, n_splits=10, *,  random_state=None, n_samples=None):
         self.n_splits = n_splits
         self.random_state = random_state
@@ -31,13 +31,14 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
                 " got n_splits={0}.".format(n_splits)
             )
         
-        if (n_samples != None) and (not isinstance(n_samples, numbers.Integral)):
+        if (n_samples is not None) and\
+                (not isinstance(n_samples, numbers.Integral)):
             raise ValueError(
                 "The number of samples must be of Integral type. "
                 "%s of type %s was passed." % (n_samples, type(n_samples))
             )
     
-    def split(self, X, y = None, groups = None):
+    def split(self, X, y=None, groups=None):
         """Generate indices to split data into training and test set.
         Parameters
         ----------
@@ -83,6 +84,7 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
         groups : object
             Always ignored, exists for compatibility.
 
+           
         Returns
         -------
         n_splits : int
@@ -92,18 +94,18 @@ class BaseBootstrapSplit(metaclass = ABCMeta):
 
     def __repr__(self):
         return _build_repr(self)
-    
+     
 
 class BootstrapSplit(BaseBootstrapSplit):
     """Bootstrap K-Folds cross-validator
 
     Provides train/test indices to split data in bootstraped train/test sets.
     The folds are determined by the number of bootstrap iterations. 
-    
-    At each bootstrap round, the train folds are nothing else than the boostrapped samples
-    of the dataset whereas the test sets are composed of all observations that 
+    At each bootstrap round, the train folds are nothing else than the
+    boostrapped samples
+    of the dataset whereas the test sets are composed of all observations that
     are missing from the train folds.
-    
+
     Parameters
     ----------
     n_splits: int, default=10
@@ -113,14 +115,14 @@ class BootstrapSplit(BaseBootstrapSplit):
         indices, which controls the randomness of each fold for each class.
         Otherwise, leave `random_state` as `None`.
         Pass an int for reproducible output across multiple function calls.
-    
+
     Examples
     --------
     >>> import numpy as np
     >>> from datalib.model_selection import BootstrapSplit
-    >>> X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [3, 4], [5, 6]])
-    >>> y = np.array([0, 1, 0, 1, 0, 1])
-    >>> boot = BootstrapSplit()
+    >>> X=np.array([[1, 2], [3, 4], [5, 6], [7, 8], [3, 4], [5, 6]])
+    >>> y=np.array([0, 1, 0, 1, 0, 1])
+    >>> boot=BootstrapSplit()
     >>> boot.get_n_splits(X)
     5
     >>> print(boot)
@@ -139,11 +141,12 @@ class BootstrapSplit(BaseBootstrapSplit):
     split. You can make the results identical by setting `random_state`
     to an integer.
     """
-    def __init__(self, n_splits: int =5, *, random_state=None, n_samples=None):
-        super().__init__(n_splits = n_splits, random_state = random_state, n_samples = n_samples)
+    def __init__(self, n_splits=5, *, random_state=None, n_samples=None):
+        super().__init__(n_splits=n_splits, random_state=random_state,
+                         n_samples=n_samples)
 
     def _iter_indices(self, X, y=None, groups=None):
-        if self.n_samples == None:
+        if self.n_samples is None:
             self.n_samples = _num_samples(X)
             indices = np.arange(self.n_samples)
         else:
@@ -151,11 +154,14 @@ class BootstrapSplit(BaseBootstrapSplit):
         # maybe we need a validate_bootstrap_split function here TBD
         rng = check_random_state(self.random_state)
         # generate random states from the random seed for reproducibility
-        random_states = rng.randint(low = 0, high = 2**32 - 1, size = self.n_splits, dtype=np.int64)
+        random_states = rng.randint(low=0, high=2**32 - 1,
+                                    size=self.n_splits, dtype=np.int64)
         for i, rs in zip(range(self.n_splits), random_states):
             # generate a bootstrap sample
-            train_index = resample(indices, replace = True, n_samples = self.n_samples, random_state = rs)
+            train_index = resample(indices, replace=True,
+                                   n_samples=self.n_samples, random_state=rs)
             test_index = list(set(indices).difference(set(train_index)))
             # assert the test_index is not empty
-            assert len(test_index) != 0, f'Test set is empty for bootstrap round {i}'
+            assert len(test_index) != 0,\
+                f'Test set is empty for bootstrap round {i}'
             yield train_index, test_index
