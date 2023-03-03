@@ -4,13 +4,24 @@ Module with the test for the cap curve display functions.
 import numpy as np
 import pytest
 
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_almost_equal
 from sklearn import datasets
 from sklearn import svm
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_random_state
 
 from datalib.metrics import cap_curve
+from .._ranking import delinquency_curve
+
+@pytest.fixture(scope="module")
+def iris_data():
+    return datasets.load_iris(return_X_y=True)
+
+
+@pytest.fixture(scope="module")
+def iris_data_binary(iris_data):
+    X, y = iris_data
+    return X[y < 2], y[y < 2]
 
 
 def make_prediction(dataset=None, binary=True, score=True):
@@ -150,3 +161,39 @@ def test_cap_curve_sample_weight():
     TODO: Implement a function to test the sample weight
     calculation for the CAP curve function.
     """
+
+
+def test_delinquency_curve__initial_and_end_values():
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+    approval_rate, _, _ = delinquency_curve(y_true, y_scores)
+
+    assert approval_rate[0] == 0
+    assert approval_rate[-1] == 1
+
+
+def test_delinquency_curve__success_case():
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+    approval_rate, default_rate, optimal_rate = delinquency_curve(
+        y_true, y_scores
+    )
+
+    assert_array_equal(approval_rate, np.array([0, 0.25, 0.5, 0.75, 1.0]))
+    assert_almost_equal(
+        default_rate, np.array([0, 0, 0.5, 0.3333333, 0.5]), decimal=5
+    )
+    assert_almost_equal(
+        optimal_rate, np.array([0, 0, 0, 0.3333333, 0.5]), decimal=5
+    )
+
+
+def test_delinquency_curve__multilabel_exception():
+    y_true = np.array([0, 0, 1, 1, 2])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8, 0.04])
+    with pytest.raises(Exception) as exc_info:
+        _, _ = delinquency_curve(y_true, y_scores)
+    assert (
+        str(exc_info.value)
+        == "Only binary classification is supported. Provided [0 1 2]."
+    )

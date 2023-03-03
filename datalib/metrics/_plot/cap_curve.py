@@ -33,7 +33,8 @@ class CAPCurveDisplay:
         Name of estimator. If None, the estimator name is not shown.
 
     pos_label : str or int, default=None
-        The class considered as the positive class when computing the cap curve.
+        The class considered as the positive class when computing
+        the CAP curve.
         By default, `estimators.classes_[1]` is considered
         as the positive class.
 
@@ -65,7 +66,13 @@ class CAPCurveDisplay:
         self.pos_label = pos_label
 
     def plot(
-        self, *, plot_random=False, plot_perfect=False, name=None, ax=None, **kwargs
+        self,
+        *,
+        plot_random=False,
+        plot_perfect=False,
+        name=None,
+        ax=None,
+        **kwargs
     ):
         """Plot visualization
         Extra keyword arguments will be passed to matplotlib's ``plot``.
