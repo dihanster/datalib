@@ -9,7 +9,7 @@ from sklearn.utils import (
     assert_all_finite,
     check_array,
     check_consistent_length,
-    column_or_1d
+    column_or_1d,
 )
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _check_sample_weight
@@ -52,7 +52,9 @@ def cap_curve(
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_score = check_array(y_score, ensure_2d=False)
     check_consistent_length(y_true, y_score, sample_weight)
-    sample_weight = _check_sample_weight(sample_weight, y_true, only_non_negative=True)
+    sample_weight = _check_sample_weight(
+        sample_weight, y_true, only_non_negative=True
+    )
 
     if y_type == "binary":
         ranking = np.argsort(y_score)[::-1]
@@ -62,7 +64,9 @@ def cap_curve(
         thresholds = np.arange(0, len(ranked) + 1) / len(ranked)
 
         # TODO: Implement traditional gini calculation
-        gini = (2 * roc_auc_score(y_true, y_score, sample_weight=sample_weight)) - 1
+        gini = (
+            2 * roc_auc_score(y_true, y_score, sample_weight=sample_weight)
+        ) - 1
 
         return cumulative_gains, thresholds, gini
 

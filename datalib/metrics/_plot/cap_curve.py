@@ -72,7 +72,7 @@ class CAPCurveDisplay:
         plot_perfect=False,
         name=None,
         ax=None,
-        **kwargs
+        **kwargs,
     ):
         """Plot visualization
         Extra keyword arguments will be passed to matplotlib's ``plot``.
@@ -127,9 +127,13 @@ class CAPCurveDisplay:
                 label="Perfect Model",
             )
 
-        (self.line_,) = ax.plot(self.thresholds, self.cumulative_gains, **line_kwargs)
+        (self.line_,) = ax.plot(
+            self.thresholds, self.cumulative_gains, **line_kwargs
+        )
         info_pos_label = (
-            f" (Positive label: {self.pos_label})" if self.pos_label is not None else ""
+            f" (Positive label: {self.pos_label})"
+            if self.pos_label is not None
+            else ""
         )
 
         xlabel = "% of Observations" + info_pos_label
@@ -184,8 +188,8 @@ class CAPCurveDisplay:
             :term:`decision_function` is tried next.
 
         pos_label : str or int, default=None
-            The class considered as the positive class when computing the roc auc
-            metrics. By default, `estimators.classes_[1]` is considered
+            The class considered as the positive class when computing the
+            ROC-AUC metric. By default, `estimators.classes_[1]` is considered
             as the positive class.
 
         plot_random : boolean, default = False
@@ -201,7 +205,8 @@ class CAPCurveDisplay:
             estimator.
 
         ax : matplotlib axes, default=None
-            Axes object to plot on. If `None`, a new figure and axes is created.
+            Axes object to plot on. If `None`, a new figure and axes is
+        created.
 
         **kwargs : dict
             Keyword arguments to be passed to matplotlib's `plot`.
@@ -219,7 +224,9 @@ class CAPCurveDisplay:
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.svm import SVC
         >>> X, y = make_classification(random_state=0)
-        >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+        >>> X_train, X_test, y_train, y_test = train_test_split(
+            X, y, random_state=0
+        )
         >>> clf = SVC(random_state=0).fit(X_train, y_train)
         >>> CAPCurveDisplay.from_estimator(clf, X_test, y_test)
         >>> plt.show()
@@ -313,7 +320,9 @@ class CAPCurveDisplay:
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.svm import SVC
         >>> X, y = make_classification(random_state=0)
-        >>> X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+        >>> X_train, X_test, y_train, y_test = train_test_split(
+            X, y, random_state=0
+        )
         >>> clf = SVC(random_state=0, probability=True).fit(X_train, y_train)
         >>> y_pred = clf.predict_proba(X_test)[:, 1]
         >>> CAPCurveDisplay.from_predictions(y_test, y_pred)
@@ -321,8 +330,12 @@ class CAPCurveDisplay:
         """
         check_matplotlib_support(f"{cls.__name__}.from_predictions")
 
-        cumulative_gains, thresholds, gini = cap_curve(y_true, y_score, sample_weight)
-        positive_rate = np.sum(y_true) / len(y_true) if plot_perfect is True else None
+        cumulative_gains, thresholds, gini = cap_curve(
+            y_true, y_score, sample_weight
+        )
+        positive_rate = (
+            np.sum(y_true) / len(y_true) if plot_perfect is True else None
+        )
 
         name = "Classifier" if name is None else name
         pos_label = _check_pos_label_consistency(pos_label, y_true)

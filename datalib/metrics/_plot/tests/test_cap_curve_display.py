@@ -10,9 +10,10 @@ from sklearn.linear_model import LogisticRegression
 from datalib.metrics import cap_curve
 from datalib.metrics import CAPCurveDisplay
 
+
 @pytest.fixture(scope="module")
 def iris_data():
-    """"
+    """ "
     A function to load the Iris dataset.
     """
     return load_iris(return_X_y=True)
@@ -20,7 +21,7 @@ def iris_data():
 
 @pytest.fixture(scope="module")
 def iris_data_binary(iris_data):
-    """"
+    """ "
     A function to load the Iris dataset in a binary version.
     """
     X, y = iris_data
@@ -28,7 +29,7 @@ def iris_data_binary(iris_data):
 
 
 def test_cap_display_compute(iris_data_binary):
-    """"
+    """ "
     Function to test the display/plot attributes for the CAP Curve.
     Check values to be displayed, titles and subtitles.
     """
@@ -51,11 +52,11 @@ def test_cap_display_compute(iris_data_binary):
     assert isinstance(viz.ax_, mpl.axes.Axes)
     assert isinstance(viz.figure_, mpl.figure.Figure)
 
+    assert viz.ax_.get_xlabel() == "% of Observations (Positive label: 1)"
     assert (
-        viz.ax_.get_xlabel()
-        == "% of Observations (Positive label: 1)"
+        viz.ax_.get_ylabel()
+        == "% of Positive Observations (Positive label: 1)"
     )
-    assert viz.ax_.get_ylabel() == "% of Positive Observations (Positive label: 1)"
 
     expected_legend_labels = [f"LogisticRegression (GINI = {gini:0.2f})"]
     legend_labels = viz.ax_.get_legend().get_texts()

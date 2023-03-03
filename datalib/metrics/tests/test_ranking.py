@@ -4,7 +4,11 @@ Module with the test for the cap curve display functions.
 import numpy as np
 import pytest
 
-from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_almost_equal
+from numpy.testing import (
+    assert_array_equal,
+    assert_array_almost_equal,
+    assert_almost_equal,
+)
 from sklearn import datasets
 from sklearn import svm
 from sklearn.metrics import roc_auc_score
@@ -12,6 +16,7 @@ from sklearn.utils.validation import check_random_state
 
 from datalib.metrics import cap_curve
 from .._ranking import delinquency_curve
+
 
 @pytest.fixture(scope="module")
 def iris_data():
