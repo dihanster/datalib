@@ -146,6 +146,7 @@ class BootstrapSplit(BaseBootstrapSplit):
     split. You can make the results identical by setting `random_state`
     to an integer.
     """
+
     def __init__(self, n_splits=5, *, random_state=None, n_samples=None):
         super().__init__(
             n_splits=n_splits, random_state=random_state, n_samples=n_samples
@@ -166,7 +167,8 @@ class BootstrapSplit(BaseBootstrapSplit):
         for i, rs in zip(range(self.n_splits), random_states):
             # generate a bootstrap sample
             train_index = resample(
-                indices, replace=True,
+                indices,
+                replace=True,
                 n_samples=self.n_samples,
                 random_state=rs,
             )
@@ -174,5 +176,5 @@ class BootstrapSplit(BaseBootstrapSplit):
             # assert the test_index is not empty
             assert (
                 len(test_index) != 0
-            ), f'Test set is empty for bootstrap round {i}'
+            ), f"Test set is empty for bootstrap round {i}"
             yield train_index, test_index
