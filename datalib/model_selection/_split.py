@@ -9,11 +9,10 @@ from sklearn.utils.validation import _num_samples
 
 class BaseBootstrapSplit(metaclass=ABCMeta):
     """Base class for BootstrapSplit and StratifiedBootstrapSplit
-    
     Implementations must define `_iter_indices`.
     """
 
-    def __init__(self, n_splits=10, *,  random_state=None, n_samples=None):
+    def __init__(self, n_splits=10, *, random_state=None, n_samples=None):
         self.n_splits = n_splits
         self.random_state = random_state
         self.n_samples = n_samples
@@ -30,14 +29,15 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
                 " train/test split by setting n_splits=2 or more,"
                 " got n_splits={0}.".format(n_splits)
             )
-        
-        if (n_samples is not None) and\
-                (not isinstance(n_samples, numbers.Integral)):
+
+        if (n_samples is not None) and (
+                not isinstance(n_samples, numbers.Integral)
+                ):
             raise ValueError(
                 "The number of samples must be of Integral type. "
                 "%s of type %s was passed." % (n_samples, type(n_samples))
             )
-    
+
     def split(self, X, y=None, groups=None):
         """Generate indices to split data into training and test set.
         Parameters
@@ -50,14 +50,16 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
         groups : array-like of shape (n_samples,), default=None
             Group labels for the samples used while splitting the dataset into
             train/test set.
-        
+
+
         Yields
         ------
         train : ndarray
             The training set indices for that split.
         test : ndarray
             The testing set indices for that split.
-        
+
+            
         Notes
         -----
         Randomized CV splitters may return different results for each call of
@@ -67,11 +69,11 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
         X, y, groups = indexable(X, y, groups)
         for train, test in self._iter_indices(X, y, groups):
             yield train, test
-        
+
     @abstractmethod
     def _iter_indices(self, X, y=None, groups=None):
         """Generate (train, test) indices"""
-    
+
     def get_n_splits(self, X=None, y=None, groups=None):
         """Returns the number of splitting iterations in the cross-validator
 
@@ -84,7 +86,7 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
         groups : object
             Always ignored, exists for compatibility.
 
-           
+
         Returns
         -------
         n_splits : int
@@ -94,7 +96,7 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
 
     def __repr__(self):
         return _build_repr(self)
-     
+
 
 class BootstrapSplit(BaseBootstrapSplit):
     """Bootstrap K-Folds cross-validator
@@ -134,7 +136,8 @@ class BootstrapSplit(BaseBootstrapSplit):
     TRAIN: [4 1 4 0 2 4] TEST: [3, 5]
     TRAIN: [5 5 0 3 3 2] TEST: [1, 4]
     TRAIN: [2 2 4 0 3 2] TEST: [1, 5]
-    
+
+
     Notes
     -----
     Randomized CV splitters may return different results for each call of
@@ -142,8 +145,9 @@ class BootstrapSplit(BaseBootstrapSplit):
     to an integer.
     """
     def __init__(self, n_splits=5, *, random_state=None, n_samples=None):
-        super().__init__(n_splits=n_splits, random_state=random_state,
-                         n_samples=n_samples)
+        super().__init__(
+            n_splits=n_splits, random_state=random_state, n_samples=n_samples
+            )
 
     def _iter_indices(self, X, y=None, groups=None):
         if self.n_samples is None:
