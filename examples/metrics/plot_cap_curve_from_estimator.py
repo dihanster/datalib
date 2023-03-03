@@ -10,9 +10,7 @@ from datalib.metrics import CAPCurveDisplay
 
 X, y = make_classification(random_state=0)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, random_state=0
-)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 clf = SVC(random_state=0).fit(X_train, y_train)
 
