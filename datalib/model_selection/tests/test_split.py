@@ -10,7 +10,6 @@ from datalib.model_selection import BootstrapSplit
 
 @ignore_warnings
 def test_cross_validator_with_default_params():
-
     X = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
     X_1d = np.array([1, 2, 3, 4, 5])
     y = np.array([1, 1, 2, 2, 2])
@@ -18,18 +17,16 @@ def test_cross_validator_with_default_params():
 
     splitters = [BootstrapSplit(random_state=42)]
     reprs = ["BootstrapSplit(n_samples=5, n_splits=5, random_state=42)"]
-    n_splits_expected = [
-        5
-    ]
+    n_splits_expected = [5]
     for i, (splitter, splitter_repr) in enumerate(zip(splitters, reprs)):
-        # Test if get_n_splits works correctly
+        # Test f get_n_splits works correctly
         assert n_splits_expected[i] == splitter.get_n_splits(X, y, groups)
 
         # Test if the cross-validator works as expected even if
         # the data is 1d
         np.testing.assert_equal(
             list(splitter.split(X, y, groups)),
-            list(splitter.split(X_1d, y, groups))
+            list(splitter.split(X_1d, y, groups)),
         )
 
         # Test if the repr works without any errors
@@ -50,9 +47,7 @@ def test_2d_y():
     y_2d = y.reshape(-1, 1)
     y_multilabel = rng.randint(0, 2, size=(n_samples, 3))
     groups = rng.randint(0, 3, size=(n_samples,))
-    splitters = [
-        BootstrapSplit()
-    ]
+    splitters = [BootstrapSplit()]
     for splitter in splitters:
         list(splitter.split(X, y, groups))
         list(splitter.split(X, y_2d, groups))
@@ -92,8 +87,7 @@ def check_cv_coverage(cv, X, y, groups, expected_n_splits):
 
 
 def test_split_indices():
-    """Check all indices are returned in the test folds
-    """
+    """Check all indices are returned in the test folds"""
     X1 = np.ones(18)
     boot = BootstrapSplit(n_splits=3)
     check_cv_coverage(boot, X1, y=None, groups=None, expected_n_splits=3)
