@@ -107,10 +107,7 @@ def test_cap_curve_multiclass_exception():
     with pytest.raises(Exception) as exc_info:
         _, _, _ = cap_curve(y_true, y_scores)
 
-    assert (
-        str(exc_info.value)
-        == "Only binary class supported!"
-    )
+    assert str(exc_info.value) == "Only binary class supported!"
 
 
 def test_gini():
@@ -137,7 +134,7 @@ def test_cap_curve_gain_increasing():
 
 
 def test_cap_curve_end_points():
-    """"
+    """ "
     Tests whether the end and start points of the CAP curve's
     cumulative values are consistent with expectations.
     """

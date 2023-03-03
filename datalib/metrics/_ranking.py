@@ -52,7 +52,6 @@ def cap_curve(
     sample_weight = _check_sample_weight(sample_weight, y_true, only_non_negative=True)
 
     if y_type == "binary":
-
         ranking = np.argsort(y_score)[::-1]
         ranked = y_true[ranking] * sample_weight
 
