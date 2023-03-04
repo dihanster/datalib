@@ -22,9 +22,9 @@ iris = datasets.load_iris()
     [
         (sk_metrics.roc_auc_score, False, {}),
         (sk_metrics.average_precision_score, False, {}),
-        (sk_metrics.accuracy_score, False, {}),
-        (sk_metrics.f1_score, False, {}),
-        (sk_metrics.fbeta_score, False, {"beta": 3}),
+        (sk_metrics.accuracy_score, True, {}),
+        (sk_metrics.f1_score, True, {}),
+        (sk_metrics.fbeta_score, True, {"beta": 3}),
     ],
 )
 @pytest.mark.parametrize(
@@ -44,4 +44,4 @@ def test_bootstrap_metric_binary_classification(
         pred = model.predict_proba(X)[:, 1]
 
     # TODO: Ok. it is running, but what do I want to assert here?
-    bootstrap_metric(y, pred, metric, **kwargs)
+    bootstrap_metric(y, pred, metric, sample_weight=sample_weight, **kwargs)
