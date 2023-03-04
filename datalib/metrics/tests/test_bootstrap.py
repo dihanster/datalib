@@ -33,20 +33,18 @@ iris = datasets.load_iris()
 )
 @pytest.mark.parametrize(
     "sample_weight",
-    [None, check_random_state(42).exponential(size=iris.target.shape[0])])
+    [None, check_random_state(42).exponential(size=iris.target.shape[0])],
+)
 def test_bootstrap_metric_classification(
     metric, threshold_dependent, kwargs, sample_weight
 ):
     X, y = iris.data, iris.target
-    preprocessor = make_column_transformer(
-        (StandardScaler(), [0, 2]), (RobustScaler(), [1, 3])
-    )
-    pipe = make_pipeline(preprocessor, LogisticRegression).fit(X, y)
+    model = LogisticRegression(random_state=42).fit(X, y)
 
     if threshold_dependent:
-        pred = pipe.predict(X)
+        pred = model.predict(X)
     else:
-        pred = pipe.predict_proba(X)
+        pred = model.predict_proba(X)
 
-    #TODO: Ok. it is running, but what do I want to assert here?
+    # TODO: Ok. it is running, but what do I want to assert here?
     bootstrap_metric(y, pred, metric, **kwargs)
