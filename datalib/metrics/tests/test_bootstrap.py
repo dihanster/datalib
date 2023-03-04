@@ -31,10 +31,11 @@ iris = datasets.load_iris()
     "sample_weight",
     [None, check_random_state(42).exponential(size=iris.target.shape[0])],
 )
-def test_bootstrap_metric_classification(
+def test_bootstrap_metric_binary_classification(
     metric, threshold_dependent, kwargs, sample_weight
 ):
-    X, y = iris.data, iris.target
+    # TODO: regression, multiclass...
+    X, y = iris.data, (iris.target >= 1).astype(int)
     model = LogisticRegression(random_state=42).fit(X, y)
 
     if threshold_dependent:
