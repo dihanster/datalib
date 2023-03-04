@@ -41,7 +41,7 @@ def test_bootstrap_metric_binary_classification(
     if threshold_dependent:
         pred = model.predict(X)
     else:
-        pred = model.predict_proba(X)
+        pred = model.predict_proba(X)[:, 1]
 
     # TODO: Ok. it is running, but what do I want to assert here?
     bootstrap_metric(y, pred, metric, **kwargs)
