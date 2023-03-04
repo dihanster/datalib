@@ -30,8 +30,7 @@ def iris_data_binary(iris_data):
 
 
 def make_prediction(dataset=None, binary=True, score=True):
-    """Make some classification predictions on a toy dataset using a SVC model.
-    """
+    """Make some classification predictions on a toy dataset using a SVC model."""
 
     if dataset is None:
         dataset = datasets.load_iris()
@@ -123,8 +122,7 @@ def test_cap_curve_multiclass_exception():
 
 
 def test_gini():
-    """Test Gini's calculation for a simple example.
-    """
+    """Test Gini's calculation for a simple example."""
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
 
