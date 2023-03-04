@@ -4,18 +4,18 @@ from sklearn.utils.validation import _check_sample_weight
 
 
 def bootstrap_metric(
-        y_true,
-        y_pred,
-        metric,
-        n_bootstrap=20,
-        sample_weight=None,
-        random_state=None,
-        **kwargs
-    ):
+    y_true,
+    y_pred,
+    metric,
+    n_bootstrap=20,
+    sample_weight=None,
+    random_state=None,
+    **kwargs
+):
     """TO DO"""
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_pred = check_array(y_pred, ensure_2d=False)
-    sample_weight = _check_sample_weight(sample_weight)
+    sample_weight = _check_sample_weight(sample_weight, y)
 
     # runs metrics checks
     metric(y_true, y_pred, sample_weight=sample_weight, **kwargs)
