@@ -30,7 +30,7 @@ def iris_data_binary(iris_data):
 
 
 def make_prediction(dataset=None, binary=True, score=True):
-    """Make some classification predictions on a toy dataset using a SVC model."""
+    """Make classification predictions on a toy dataset using a SVC model."""
 
     if dataset is None:
         dataset = datasets.load_iris()

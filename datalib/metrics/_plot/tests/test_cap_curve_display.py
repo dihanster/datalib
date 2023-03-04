@@ -62,4 +62,4 @@ def test_cap_display_compute(iris_data_binary):
 
 
 def test_cap_curve_display_plotting():
-    """TODO: Implement this test, based on scikit-learn's test for ROC Curve."""
+    """TODO: Implement test, based on scikit-learn's test for ROC Curve."""
