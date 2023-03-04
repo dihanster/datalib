@@ -13,24 +13,21 @@ from datalib.metrics import CAPCurveDisplay
 
 @pytest.fixture(scope="module")
 def iris_data():
-    """ "
-    A function to load the Iris dataset.
+    """A function to load the Iris dataset.
     """
     return load_iris(return_X_y=True)
 
 
 @pytest.fixture(scope="module")
 def iris_data_binary(iris_data):
-    """ "
-    A function to load the Iris dataset in a binary version.
+    """A function to load the Iris dataset in a binary version.
     """
     X, y = iris_data
     return X[y < 2], y[y < 2]
 
 
 def test_cap_display_compute(iris_data_binary):
-    """ "
-    Function to test the display/plot attributes for the CAP Curve.
+    """Function to test the display/plot attributes for the CAP Curve.
     Check values to be displayed, titles and subtitles.
     """
     X, y = iris_data_binary
@@ -67,6 +64,5 @@ def test_cap_display_compute(iris_data_binary):
 
 
 def test_cap_curve_display_plotting():
-    """
-    TODO: Implement this test, based on scikit-learn's test for ROC Curve.
+    """TODO: Implement this test, based on scikit-learn's test for ROC Curve.
     """

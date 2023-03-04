@@ -30,8 +30,7 @@ def iris_data_binary(iris_data):
 
 
 def make_prediction(dataset=None, binary=True, score=True):
-    """
-    Make some classification predictions on a toy dataset using a SVC model.
+    """Make some classification predictions on a toy dataset using a SVC model.
     """
 
     if dataset is None:
@@ -73,8 +72,7 @@ def make_prediction(dataset=None, binary=True, score=True):
 
 
 def test_cap_curve():
-    """
-    Tests CAP Curve return attributes such as the Gini value and the
+    """Tests CAP Curve return attributes such as the Gini value and the
     shape of the cumulative values and thresholds, using scores from the
     `predict_proba` and `decision_function` of a model.
     """
@@ -98,8 +96,7 @@ def test_cap_curve():
 
 
 def test_cap_curve_toy_data():
-    """
-    It tests a simple example for calculating the CAP Curve, comparing
+    """It tests a simple example for calculating the CAP Curve, comparing
     it with the expected value for the cumulative values, the threshols
     and the Gini value.
     """
@@ -113,8 +110,7 @@ def test_cap_curve_toy_data():
 
 
 def test_cap_curve_multiclass_exception():
-    """
-    Tests a multiclass example case, which function should return an error
+    """Tests a multiclass example case, which function should return an error
     for the CAP Curve.
     """
     y_true = np.array([0, 0, 1, 1, 2])
@@ -127,8 +123,7 @@ def test_cap_curve_multiclass_exception():
 
 
 def test_gini():
-    """
-    Test Gini's calculation for a simple example.
+    """Test Gini's calculation for a simple example.
     """
     y_true = np.array([0, 0, 1, 1])
     y_scores = np.array([0.1, 0.4, 0.3, 0.8])
@@ -138,8 +133,7 @@ def test_gini():
 
 
 def test_cap_curve_gain_increasing():
-    """
-    Tests whether the cumulative gain attribute returned by
+    """Tests whether the cumulative gain attribute returned by
     the function of CAP Curve is increasing.
     """
     y_true, _, y_score = make_prediction()
@@ -150,8 +144,7 @@ def test_cap_curve_gain_increasing():
 
 
 def test_cap_curve_end_points():
-    """ "
-    Tests whether the end and start points of the CAP curve's
+    """Tests whether the end and start points of the CAP curve's
     cumulative values are consistent with expectations.
     """
     y_true, _, y_score = make_prediction()
@@ -162,8 +155,7 @@ def test_cap_curve_end_points():
 
 
 def test_cap_curve_sample_weight():
-    """
-    TODO: Implement a function to test the sample weight
+    """TODO: Implement a function to test the sample weight
     calculation for the CAP curve function.
     """
 
