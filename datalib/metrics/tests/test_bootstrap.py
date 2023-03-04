@@ -9,11 +9,7 @@ from sklearn import metrics as sk_metrics
 
 from .._bootstrap import bootstrap_metric
 
-from sklearn.compose import make_column_transformer
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import RobustScaler
-from sklearn.pipeline import make_pipeline
 from sklearn.utils.validation import check_random_state
 
 

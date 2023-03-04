@@ -15,7 +15,7 @@ def bootstrap_metric(
     """TO DO"""
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_pred = check_array(y_pred, ensure_2d=False)
-    sample_weight = _check_sample_weight(sample_weight, y)
+    sample_weight = _check_sample_weight(sample_weight, y_true)
 
     # runs metrics checks
     metric(y_true, y_pred, sample_weight=sample_weight, **kwargs)
