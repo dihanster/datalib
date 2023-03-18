@@ -6,11 +6,10 @@ import pytest
 
 from sklearn import datasets
 from sklearn import metrics as sk_metrics
-
-from .._bootstrap import bootstrap_metric
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.utils.validation import check_random_state
+
+from .._bootstrap import bootstrap_metric
 
 
 # iris
@@ -45,4 +44,5 @@ def test_bootstrap_metric_binary_classification(
 
     # TODO: Ok. it is running, but what do I want to assert here?
     bootstrap_metric(y, pred, metric, sample_weight=sample_weight, **kwargs)
+
 
