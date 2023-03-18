@@ -45,4 +45,3 @@ def test_bootstrap_metric_binary_classification(
     # TODO: Ok. it is running, but what do I want to assert here?
     bootstrap_metric(y, pred, metric, sample_weight=sample_weight, **kwargs)
 
-
