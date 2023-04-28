@@ -173,9 +173,9 @@ class BootstrapSplit(BaseBootstrapSplit):
                     replace=True,
                     n_samples=self.n_samples,
                     random_state=rs,
-                    )
+                )
                 test_index = list(set(indices).difference(set(train_index)))
                 rs = check_random_state(rs).randint(
                     low=0, high=2**32 - 1, dtype=np.int64
-                    )
+                )
             yield train_index, test_index
