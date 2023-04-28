@@ -165,16 +165,17 @@ class BootstrapSplit(BaseBootstrapSplit):
             low=0, high=2**32 - 1, size=self.n_splits, dtype=np.int64
         )
         for i, rs in zip(range(self.n_splits), random_states):
-            # generate a bootstrap sample
-            train_index = resample(
-                indices,
-                replace=True,
-                n_samples=self.n_samples,
-                random_state=rs,
-            )
-            test_index = list(set(indices).difference(set(train_index)))
-            # assert the test_index is not empty
-            assert (
-                len(test_index) != 0
-            ), f"Test set is empty for bootstrap round {i}"
+            test_index = []
+            while len(test_index) == 0:
+                # generate a bootstrap sample
+                train_index = resample(
+                    indices,
+                    replace=True,
+                    n_samples=self.n_samples,
+                    random_state=rs,
+                    )
+                test_index = list(set(indices).difference(set(train_index)))
+                rs = check_random_state(rs).randint(
+                    low=0, high=2**32 - 1, dtype=np.int64
+                    )
             yield train_index, test_index
