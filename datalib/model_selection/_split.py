@@ -120,6 +120,13 @@ class BootstrapSplit(BaseBootstrapSplit):
         Pass an int for reproducible output across multiple function calls.
 
 
+    References
+    ----------
+    `Model Evaluation, Model Selection, and Algorithm Selection in
+    Machine Learning - Sebastian Raschka
+    <https://arxiv.org/pdf/1811.12808.pdf>`__
+
+
     Examples
     --------
     >>> import numpy as np
@@ -133,11 +140,11 @@ class BootstrapSplit(BaseBootstrapSplit):
     BootstrapSplit(n_splits=5, random_state=None)
     >>> for train_index, test_index in boot.split(X, y):
     ...     print("TRAIN:", train_index, "TEST:", test_index)
-    TRAIN: [0 3 4 1 1 4] TEST: [2, 5]
-    TRAIN: [0 2 0 3 2 0] TEST: [1, 4, 5]
-    TRAIN: [4 1 4 0 2 4] TEST: [3, 5]
-    TRAIN: [5 5 0 3 3 2] TEST: [1, 4]
-    TRAIN: [2 2 4 0 3 2] TEST: [1, 5]
+    TRAIN: [5 1 5 2 5] TEST: [0, 3, 4]
+    TRAIN: [3 0 0 4 2] TEST: [1, 5]
+    TRAIN: [2 4 0 1 2] TEST: [3, 5]
+    TRAIN: [4 4 3 4 4] TEST: [0, 1, 2, 5]
+    TRAIN: [5 4 2 1 2] TEST: [0, 3]
 
 
     Notes
