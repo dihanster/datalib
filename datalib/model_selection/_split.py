@@ -39,7 +39,7 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
             )
 
     def split(self, X, y=None, groups=None):
-        """Generate indices to split data into training and test set.
+        """Generates indices to split data into training and test set.
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
