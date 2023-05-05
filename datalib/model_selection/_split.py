@@ -45,6 +45,7 @@ class BaseBootstrapSplit(metaclass=ABCMeta):
         X : array-like of shape (n_samples, n_features)
             Training data, where `n_samples` is the number of samples
             and `n_features` is the number of features.
+
         y : array-like of shape (n_samples,)
             The target variable for supervised learning problems.
         groups : array-like of shape (n_samples,), default=None
