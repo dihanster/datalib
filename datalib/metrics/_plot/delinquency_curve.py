@@ -1,59 +1,68 @@
 from sklearn.metrics._base import _check_pos_label_consistency
 from sklearn.metrics._plot.base import _get_response
 from sklearn.utils import (
-    check_consistent_length,
-    assert_all_finite,
-    column_or_1d,
     check_matplotlib_support,
 )
 from sklearn.base import is_classifier
-
-import numpy as np
+from datalib.metrics import delinquency_curve
 
 
 class DeliquencyDisplay:
     """Deliquency curve visualization.
     It is recommended to use
-    :func:`~datalib.metrics.DeliquencyDisplay.from_estimator` or
-    :func:`~datalib.metrics.DeliquencyDisplay.from_predictions`
-    to create a `DeliquencyDisplay`. All parameters are stored as attributes.
+    :func:`~datalib.DeliquencyDisplay.from_estimator` or
+    :func:`~datalib.DeliquencyDisplay.from_predictions`
+    to create a `DeliquencyDisplay`. All parameters are stored as
+    attributes.
 
     Parameters
     ----------
-    approval_rate : ndarray of shape (n_bins,)
+    approval_rate : array-like, shape (n_samples,)
         The relative percentage population approved.
-    default_rate : ndarray of shape (n_bins,)
-        The default rate, a.k.a relative percentage of positives on the sample.
-    optimal_rate : ndarray of shape (n_bins,)
+
+    default_rate : array-like, shape (n_samples,)
+        The default rate, a.k.a relative percentage of positives on the
+        sample.
+
+    optimal_rate : array-like, shape (n_samples,)
         The optimal default rate.
+
     estimator_name : str, default=None
         Name of estimator. If None, the estimator name is not shown.
+
     pos_label : str or int, default=None
-        The positive class when computing the calibration curve.
+        The positive class when computing the deliquency curve.
         By default, `estimators.classes_[1]` is considered as the
         positive class.
+
     Attributes
     ----------
     line_ : matplotlib Artist
-        Calibration curve.
+        Deliquency curve.
+
     ax_ : matplotlib Axes
-        Axes with calibration curve.
+        Axes with deliquency curve.
+
     figure_ : matplotlib Figure
         Figure containing the curve.
+
     See Also
     --------
-    delinquency_curve : Compute true and predicted probabilities for a
-        calibration curve.
-    DeliquencyDisplay.from_predictions : Plot calibration curve using true
-        and predicted labels.
-    DeliquencyDisplay.from_estimator : Plot calibration curve using an
-        estimator and data.
+    delinquency_curve : The main method to calculate needed curves for
+    the delinquency analysis.
+
+    DeliquencyDisplay.from_predictions : Plot deliquency curve using
+    approval, default, and optimal rates.
+
+    DeliquencyDisplay.from_estimator : Plot deliquency curve using an
+    estimator and data.
+
     Examples
     --------
     >>> from sklearn.datasets import make_classification
     >>> from sklearn.model_selection import train_test_split
     >>> from sklearn.linear_model import LogisticRegression
-    >>> from datalib.metrics import delinquency_curve, DeliquencyDisplay
+    >>> from datalib import delinquency_curve, DeliquencyDisplay
     >>> X, y = make_classification(random_state=0)
     >>> X_train, X_test, y_train, y_test = train_test_split(
     ...     X, y, random_state=0)
@@ -61,7 +70,8 @@ class DeliquencyDisplay:
     >>> clf.fit(X_train, y_train)
     LogisticRegression(random_state=0)
     >>> y_prob = clf.predict_proba(X_test)[:, 1]
-    >>> approval_rate, default_rate, optimal_rate = delinquency_curve(y_test, y_prob)
+    >>> approval_rate, default_rate, optimal_rate =
+    ...     delinquency_curve(y_test, y_prob)
     >>> disp = DeliquencyDisplay(approval_rate, default_rate, optimal_rate)
     >>> disp.plot()
     <...>
@@ -86,22 +96,27 @@ class DeliquencyDisplay:
         """Plot visualization.
         Extra keyword arguments will be passed to
         :func:`matplotlib.pyplot.plot`.
+
         Parameters
         ----------
         ax : Matplotlib Axes, default=None
             Axes object to plot on. If `None`, a new figure and axes is
             created.
+
         name : str, default=None
             Name for labeling curve. If `None`, use `estimator_name` if
             not `None`, otherwise no labeling is shown.
+
         ref_line : bool, default=True
             If `True`, plots a reference line representing a perfectly
             calibrated classifier.
+
         **kwargs : dict
             Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.
+
         Returns
         -------
-        display : :class:`~sklearn.calibration.CalibrationDisplay`
+        display : :class:`~datalib.DeliquencyDisplay`
             Object that stores computed values.
         """
         check_matplotlib_support("DeliquencyDisplay.plot")
@@ -112,7 +127,9 @@ class DeliquencyDisplay:
 
         name = self.estimator_name if name is None else name
         info_pos_label = (
-            f"(Positive class: {self.pos_label})" if self.pos_label is not None else ""
+            f"(Positive class: {self.pos_label})"
+            if self.pos_label is not None
+            else ""
         )
 
         line_kwargs = {}
@@ -120,17 +137,22 @@ class DeliquencyDisplay:
             line_kwargs["label"] = name
         line_kwargs.update(**kwargs)
 
-        ref_line_label = "The optimal default rate"
+        ref_line_label = "The optimal Default Rate"
         existing_ref_line = ref_line_label in ax.get_legend_handles_labels()[1]
         if ref_line and not existing_ref_line:
-            ax.plot(self.approval_rate, self.optimal_rate, "k:", label=ref_line_label)
+            ax.plot(
+                self.approval_rate,
+                self.optimal_rate,
+                "k:",
+                label=ref_line_label,
+            )
         self.line_ = ax.plot(
             self.approval_rate, self.default_rate, "s-", **line_kwargs
         )[0]
 
         ax.legend(loc="lower right")
 
-        xlabel = f"Relative percentage of approvals on the population {info_pos_label}"
+        xlabel = f"Relative % of approvals on the population {info_pos_label}"
         ylabel = f"Default Rate {info_pos_label}"
         ax.set(xlabel=xlabel, ylabel=ylabel)
 
@@ -162,46 +184,52 @@ class DeliquencyDisplay:
         ----------
         estimator : estimator instance
             Fitted classifier or a fitted :class:`~sklearn.pipeline.Pipeline`
-            in which the last estimator is a classifier. The classifier must
-            have a :term:`predict_proba` method.
+            in which the last estimator is a classifier. The classifier
+            must have a :term:`predict_proba` method.
+
         X : {array-like, sparse matrix} of shape (n_samples, n_features)
             Input values.
+
         y : array-like of shape (n_samples,)
             Binary target values.
-        n_bins : int, default=5
-            Number of bins to discretize the [0, 1] interval into when
-            calculating the calibration curve. A bigger number requires more
-            data.
+
         pos_label : str or int, default=None
             The positive class when computing the calibration curve.
             By default, `estimators.classes_[1]` is considered as the
             positive class.
+
         name : str, default=None
-            Name for labeling curve. If `None`, the name of the estimator is
-            used.
+            Name for labeling curve. If `None`, the name of the estimator
+             is used.
+
         ref_line : bool, default=True
             If `True`, plots a reference line representing a perfectly
             calibrated classifier.
+
         ax : matplotlib axes, default=None
             Axes object to plot on. If `None`, a new figure and axes is
             created.
+
         **kwargs : dict
             Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.
+
         Returns
         -------
-        display : :class:`~datalib.metrics.DeliquencyDisplay`.
+        display : :class:`~datalib.DeliquencyDisplay`.
             Object that stores computed values.
+
         See Also
         --------
-        DeliquencyDisplay.from_predictions : Plot calibration curve using true
-            and predicted labels.
+        DeliquencyDisplay.from_predictions : Plot deliquency curve using
+         true and predicted labels.
+
         Examples
         --------
         >>> import matplotlib.pyplot as plt
         >>> from sklearn.datasets import make_classification
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.linear_model import LogisticRegression
-        >>> from datalib.metrics import DeliquencyDisplay
+        >>> from datalib import DeliquencyDisplay
         >>> X, y = make_classification(random_state=0)
         >>> X_train, X_test, y_train, y_test = train_test_split(
         ...     X, y, random_state=0)
@@ -244,43 +272,53 @@ class DeliquencyDisplay:
         ax=None,
         **kwargs,
     ):
-        """Plot deliquency curve using true labels and predicted probabilities.
+        """Plot deliquency curve using true labels and predicted
+        probabilities.
 
         Parameters
         ----------
         y_true : array-like of shape (n_samples,)
             True labels.
+
         y_prob : array-like of shape (n_samples,)
             The predicted probabilities of the positive class.
+
         pos_label : str or int, default=None
             The positive class when computing the calibration curve.
             By default, `estimators.classes_[1]` is considered as the
             positive class.
+
         name : str, default=None
             Name for labeling curve.
+
         ref_line : bool, default=True
             If `True`, plots a reference line representing a perfectly
             calibrated classifier.
+
         ax : matplotlib axes, default=None
             Axes object to plot on. If `None`, a new figure and axes is
             created.
+
         **kwargs : dict
             Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.
+
         Returns
         -------
-        display : :class:`~datalib.metrics.DeliquencyDisplay`.
+        display : :class:`~datalib.DeliquencyDisplay`.
             Object that stores computed values.
+
         See Also
         --------
         DeliquencyDisplay.from_estimator : Plot calibration curve using an
             estimator and data.
+
         Examples
         --------
         >>> import matplotlib.pyplot as plt
         >>> from sklearn.datasets import make_classification
         >>> from sklearn.model_selection import train_test_split
         >>> from sklearn.linear_model import LogisticRegression
-        >>> from datalib.metrics import DeliquencyDisplay
+        >>> from datalib import DeliquencyDisplay
         >>> X, y = make_classification(random_state=0)
         >>> X_train, X_test, y_train, y_test = train_test_split(
         ...     X, y, random_state=0)
@@ -307,56 +345,4 @@ class DeliquencyDisplay:
             estimator_name=name,
             pos_label=pos_label,
         )
-        return disp.plot(ax=ax, **kwargs)
-
-
-def delinquency_curve(y_true, y_proba, pos_label=None):
-    """Delinquency curve for a binary classification.
-
-    The delinquency curve presents the default rate throughout unique approval rates. The `default rate` regards for the percentage
-    of actual 1s, a.k.a deliquents, on specified sample; whereas the `approval rate` is the percentage of a sample set as
-    approved, or not deliquent.
-
-    Deliquency curve is key on many atuary operations, where grasping the relative percentage of mishaps on approval levels
-    is vital.
-    Parameters
-    ----------
-    y_true : array, shape = [n_samples]
-        Correct labels for given dataset.
-    y_proba : array, shape = [n_samples]
-        Predicted probability scores for the given dataset.
-    Returns
-    -------
-    approval_rate: array.
-        An array containing the approval rates used to compute the default_rate curve.
-    default_rate: array.
-        An array containing the default rates values for the approval rates provided in approval_rate.
-    optimal_rate: array.
-        An array containing the optimal default rates for a perfect model.
-    """
-    labels = np.unique(y_true)
-    if len(labels) > 2:
-        raise ValueError(
-            f"Only binary classification is supported. Provided labels {labels}."
-        )
-    y_true = column_or_1d(y_true)
-    y_proba = column_or_1d(y_proba)
-    check_consistent_length(y_true, y_proba)
-    pos_label = _check_pos_label_consistency(pos_label, y_true)
-    assert_all_finite(y_true)
-    assert_all_finite(y_proba)
-
-    y_true = y_true == pos_label
-
-    scores_idxs = np.argsort(y_proba)[::1]
-    actual_idxs = np.argsort(y_true)[::1]
-
-    y_true_sorted_by_scores = y_true[scores_idxs].copy()
-    y_true_sorted = y_true[actual_idxs].copy()
-
-    list_index = np.arange(1, len(y_true_sorted_by_scores) + 1)
-    approval_rate = np.append(0, list_index / len(list_index))
-    default_rate = np.append(0, y_true_sorted_by_scores.cumsum() / list_index)
-    optimal_rate = np.append(0, y_true_sorted.cumsum() / list_index)
-
-    return approval_rate, default_rate, optimal_rate
+        return disp.plot(ax=ax, ref_line=ref_line, **kwargs)
