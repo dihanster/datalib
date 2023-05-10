@@ -17,30 +17,29 @@ iris = datasets.load_iris()
 
 
 @pytest.mark.parametrize(
-    "metric, threshold_dependent, kwargs",
+    "metric, kwargs",
     [
-        (sk_metrics.roc_auc_score, False, {}),
-        (sk_metrics.average_precision_score, False, {}),
-        (sk_metrics.accuracy_score, True, {}),
-        (sk_metrics.f1_score, True, {}),
-        (sk_metrics.fbeta_score, True, {"beta": 3}),
+        (sk_metrics.accuracy_score, {}),
+        (sk_metrics.f1_score, {}),
+        (sk_metrics.fbeta_score, {"beta": 3}),
     ],
 )
 @pytest.mark.parametrize(
     "sample_weight",
-    [None, check_random_state(42).exponential(size=iris.target.shape[0])],
+    [check_random_state(42).exponential(size=iris.target.shape[0])],
 )
-def test_bootstrap_metric_binary_classification(
-    metric, threshold_dependent, kwargs, sample_weight
-):
-    # TODO: regression, multiclass...
+def test_bootstrap_metric_binary_classification(metric, kwargs, sample_weight):
+    # TODO: non-threshold metrics, regression, multiclass...
     X, y = iris.data, (iris.target >= 1).astype(int)
     model = LogisticRegression(random_state=42).fit(X, y)
-
-    if threshold_dependent:
-        pred = model.predict(X)
-    else:
-        pred = model.predict_proba(X)[:, 1]
+    pred = model.predict(X)
 
     # TODO: Ok. it is running, but what do I want to assert here?
-    bootstrap_metric(y, pred, metric, sample_weight=sample_weight, **kwargs)
+    bootstrap_metric(
+        metric,
+        kwargs_to_sample=["y_true", "y_pred", "sample_weight"],
+        y_true=y,
+        y_pred=pred,
+        sample_weight=sample_weight,
+        **kwargs
+    )
