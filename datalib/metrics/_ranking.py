@@ -1,108 +1,3 @@
-<<<<<<< HEAD
-from sklearn.utils import check_array, check_consistent_length
-from sklearn.utils.multiclass import type_of_target
-
-import numpy as np
-
-
-def transform_label_vector_to_matrix(y_true):
-    base_array = np.max(y_true) + 1
-    base_array = np.eye(base_array)[y_true]
-
-    return base_array
-
-
-def discrete_ranked_probability_loss(y_true, y_proba):
-    """Discrete RPS Score.
-
-    The Discrete RPS Loss function leverages the RPS as a loss function. This loss function wraps up
-    the unitary RPS calculation, reduce it to all realizations of an response vector y_true and
-    its predicted probabilities y_proba, and outputs a mean across all unitary RPS.
-    """
-
-    y_true = check_array(y_true, ensure_2d=False, dtype=None)
-    y_proba = check_array(y_proba, ensure_2d=False)
-    check_consistent_length(y_true, y_proba)
-
-    y_true_matrix = transform_label_vector_to_matrix(y_true)
-
-    bias_correction = len(set(y_true)) - 1
-
-    if y_proba.shape[1] != len(set(y_true)):
-        raise ValueError(
-            f"Number of unique labels and columns on y_proba don't match. \
-             Provided labels {set(y_true)}."
-        )
-
-    return np.average(
-        [
-            discrete_ranked_probability_score(y_score, y_true, bias_correction)
-            for y_score, y_true in zip(y_proba, y_true_matrix)
-        ]
-    )
-
-
-def discrete_ranked_probability_score(y_true, y_scores, bias_correction=1):
-    """Ranked Probability Score.
-
-    The Unbiased RPS is used to quantify the performance of probabilistic prediction systems.
-    It compares the cumulative density function of a probabilistic forecast with a ground truth,
-    condined by a number of levels(Categories). Brier Score is the two-level case of RPS.
-    Parameters
-    ----------
-    y_true : array, shape = [n_samples]
-        Correct labels for given dataset.
-    y_proba : array of shape (n_samples, n_classes)
-        Probability estimates provided by `predict_proba` method.
-    Returns
-    -------
-    approval_rate: array.
-        An array containing the approval rates used to compute the default_rate curve.
-    default_rate: array.
-        An array containing the default rates values for the approval rates provided in approval_rate.
-    optimal_rate: array.
-        An array containing the optimal default rates for a perfect model.
-    References
-    ----------
-    .. [1] `The Discrete Brier and Ranked Probability Skill Scores
-            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.xml>`_
-    .. [2] ` Forecast Verification - Issues, Methods and FAQ
-            <https://www.cawcr.gov.au/projects/verification/verif_web_page.html#RPS>`_
-    Examples
-    --------
-    >>> from sklearn.datasets import make_classification
-    >>> from sklearn.model_selection import train_test_split
-    >>> from sklearn.linear_model import LogisticRegression
-    >>> from datalib.metrics import discrete_ranked_probability_score
-    >>> X, y = make_classification(random_state=0)
-    >>> X_train, X_test, y_train, y_test = train_test_split(
-    ...     X, y, random_state=0)
-    >>> clf = LogisticRegression(random_state=0)
-    >>> clf.fit(X_train, y_train)
-        LogisticRegression(random_state=0)
-    >>> y_proba = clf.predict_proba(X_test)
-    >>> discrete_ranked_probability_score(y_test, y_proba)
-    """
-    """
-    y_true = check_array(y_true, ensure_2d=False, dtype=None)
-    y_proba = check_array(y_proba, ensure_2d=False)  
-    check_consistent_length(y_true, y_proba)    
-
-
-    if y_proba.shape[1] != len(set(y_true)):
-        raise ValueError(
-            f"Number of unique labels and columns on y_proba don't match. \
-             Provided labels {set(y_true)}."
-        )
-    """
-    if y_scores.shape != y_true.shape:
-        raise ValueError(f"Matrices y_true and y_proba format don't match.")
-
-    y_true_cumsum = np.cumsum(y_true, axis=0)
-    y_scores_cumsum = np.cumsum(y_scores, axis=0)
-
-    return np.sum((y_scores_cumsum - y_true_cumsum) ** 2) / bias_correction
-=======
 """
 Module containing the main metrics for ranking.
 """
@@ -116,6 +11,7 @@ from sklearn.utils import (
     check_consistent_length,
     column_or_1d,
 )
+from sklearn.utils._encode import _encode, _unique
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _check_sample_weight
 
@@ -247,4 +143,202 @@ def delinquency_curve(y_true, y_score, pos_label=None):
     optimal_rate = np.append(0, y_true_sorted.cumsum() / list_index)
 
     return approval_rate, default_rate, optimal_rate
->>>>>>> main
+
+
+def transform_label_vector_to_matrix(y_true):
+    base_array = np.max(y_true) + 1
+    base_array = np.eye(base_array)[y_true]
+
+    return base_array
+
+
+def ranked_probability_score_loss(
+    y_true, y_score, *, labels=None, sample_weight=None
+):
+    """Ranked probability score loss.
+
+    The Unbiased RPS is used to quantify the performance of probabilistic prediction systems. It compares the cumulative density function of a probabilistic forecast with a ground truth, conditioned by a number of levels(Categories).
+
+    This metric outputs a number value between 0 and 1, where the smaller the better. It is appropriate for ordinal outcome variables as long as it compares the cumulative distribution.
+
+    Parameters
+    ----------
+    y_true : ndarray of shape (n_samples,)
+        True targets of classification. If labels are not integer ordinal, then pos_label should be explicitly given.
+
+    y_score : ndarray of shape (n_samples, n_classes)
+        Estimated probabilities or output of a model / decision function.
+
+    labels : array-like of shape (n_classes,) or None
+        List of labels to index ``y_score``. If ``None``, the lexical order of ``y_true`` is used to index ``y_score``.
+
+    sample_weight : array-like of shape (n_samples,), default=None
+        Sample weights. If `None`, all samples are given the same weight.
+
+    Returns
+    -------
+    score: float.
+        Ranked Probability Score Loss.
+
+    References
+    ----------
+    .. [1] `The Discrete Brier and Ranked Probability Skill Scores
+            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.xml>`_
+
+    .. [2] `Forecast Verification - Issues, Methods and FAQ
+            <https://www.cawcr.gov.au/projects/verification/verif_web_page.html#RPS>`_
+
+    .. [3] `Statistical Concepts - Probabilistic Data
+            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+Concepts+-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores(RPS)>`_
+
+    Examples
+    --------
+    >>> from sklearn.datasets import make_classification
+    >>> from sklearn.model_selection import train_test_split
+    >>> from sklearn.linear_model import LogisticRegression
+    >>> from datalib.metrics import ranked_probability_score_loss
+    >>> X, y = make_classification(random_state=0)
+    >>> X_train, X_test, y_train, y_test = train_test_split(
+    ...     X, y, random_state=0)
+    >>> clf = LogisticRegression(random_state=0)
+    >>> clf.fit(X_train, y_train)
+        LogisticRegression(random_state=0)
+    >>> y_proba = clf.predict_proba(X_test)
+    >>> ranked_probability_score_loss(y_test, y_proba)
+    """
+    y_true = check_array(y_true, ensure_2d=False, dtype=None)
+    y_score = check_array(y_score, ensure_2d=False)
+
+    if y_score.shape[1] != len(set(y_true)):
+        raise ValueError(
+            f"Number of unique labels and columns on y_scores don't match. \
+             Provided labels {set(y_true)}."
+        )
+
+    if not np.allclose(1, y_score.sum(axis=1)):
+        raise ValueError(
+            "Target scores need to be probabilities for multiclass "
+            "they must stack up to 1.0 over classes"
+        )
+
+    if labels is not None:
+        labels = column_or_1d(labels)
+        classes = _unique(labels)
+        if len(classes) != len(labels):
+            raise ValueError("Parameter 'labels' must be unique")
+        if not np.array_equal(classes, labels):
+            raise ValueError("Parameter 'labels' must be ordered")
+        if len(classes) != y_score.shape[1]:
+            raise ValueError(
+                "Number of given labels, {0}, not equal to the number "
+                "of columns in 'y_score', {1}".format(
+                    len(classes), y_score.shape[1]
+                )
+            )
+        if len(np.setdiff1d(y_true, classes)):
+            raise ValueError(
+                "'y_true' contains labels not in parameter 'labels'"
+            )
+    else:
+        classes = _unique(y_true)
+        if len(classes) != y_score.shape[1]:
+            raise ValueError(
+                "Number of classes in y_true not equal to the number of "
+                "columns in 'y_score'"
+            )
+
+    y_true_encoded = _encode(y_true, uniques=classes)
+    y_true_one_hot = transform_label_vector_to_matrix(y_true_encoded)
+    check_consistent_length(y_true_one_hot, y_score)
+
+    bias_correction = len(set(y_true)) - 1
+
+    y_true_cumsum = np.cumsum(y_true_one_hot, axis=1)
+    y_scores_cumsum = np.cumsum(y_score, axis=1)
+
+    print("y_true_cumsum")
+    print(y_true_cumsum)
+    print("y_scores_cumsum")
+    print(y_scores_cumsum)
+    print("y_scores_cumsum - y_true_cumsum")
+    print(y_scores_cumsum - y_true_cumsum)
+    print("square")
+    print((y_scores_cumsum - y_true_cumsum) ** 2)
+    print("sum")
+    print(np.sum((y_scores_cumsum - y_true_cumsum) ** 2, axis=1))
+    print("finalMetric")
+    print(
+        np.average(
+            np.sum((y_scores_cumsum - y_true_cumsum) ** 2, 1) / bias_correction
+        )
+    )
+
+    return np.average(
+        np.sum((y_scores_cumsum - y_true_cumsum) ** 2, 1) / bias_correction,
+        weights=sample_weight,
+    )
+
+
+def _discrete_ranked_probability(y_true, y_scores, bias_correction=1):
+    """Ranked Probability Score.
+
+    The Unbiased RPS is used to quantify the performance of probabilistic prediction systems.
+    It compares the cumulative density function of a probabilistic forecast with a ground truth,
+    condined by a number of levels(Categories). Brier Score is the two-level case of RPS.
+    Parameters
+    ----------
+    y_true : array, shape = [n_samples]
+        Correct labels for given dataset.
+    y_proba : array of shape (n_samples, n_classes)
+        Probability estimates provided by `predict_proba` method.
+    Returns
+    -------
+    approval_rate: array.
+        An array containing the approval rates used to compute the default_rate curve.
+    default_rate: array.
+        An array containing the default rates values for the approval rates provided in approval_rate.
+    optimal_rate: array.
+        An array containing the optimal default rates for a perfect model.
+    References
+    ----------
+    .. [1] `The Discrete Brier and Ranked Probability Skill Scores
+            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.xml>`_
+    .. [2] `Forecast Verification - Issues, Methods and FAQ
+            <https://www.cawcr.gov.au/projects/verification/verif_web_page.html#RPS>`_
+    .. [3] `Statistical Concepts - Probabilistic Data
+            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+Concepts+-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores(RPS)>`_
+
+    Examples
+    --------
+    >>> from sklearn.datasets import make_classification
+    >>> from sklearn.model_selection import train_test_split
+    >>> from sklearn.linear_model import LogisticRegression
+    >>> from datalib.metrics import discrete_ranked_probability_score
+    >>> X, y = make_classification(random_state=0)
+    >>> X_train, X_test, y_train, y_test = train_test_split(
+    ...     X, y, random_state=0)
+    >>> clf = LogisticRegression(random_state=0)
+    >>> clf.fit(X_train, y_train)
+        LogisticRegression(random_state=0)
+    >>> y_proba = clf.predict_proba(X_test)
+    >>> discrete_ranked_probability_score(y_test, y_proba)
+    """
+    """
+    y_true = check_array(y_true, ensure_2d=False, dtype=None)
+    y_proba = check_array(y_proba, ensure_2d=False)  
+    check_consistent_length(y_true, y_proba)    
+
+
+    if y_proba.shape[1] != len(set(y_true)):
+        raise ValueError(
+            f"Number of unique labels and columns on y_proba don't match. \
+             Provided labels {set(y_true)}."
+        )
+    """
+    if y_scores.shape != y_true.shape:
+        raise ValueError(f"Matrices y_true and y_proba format don't match.")
+
+    y_true_cumsum = np.cumsum(y_true, axis=0)
+    y_scores_cumsum = np.cumsum(y_scores, axis=0)
+
+    return np.sum((y_scores_cumsum - y_true_cumsum) ** 2) / bias_correction

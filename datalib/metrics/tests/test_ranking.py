@@ -14,8 +14,11 @@ from sklearn import svm
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_random_state
 
-from datalib.metrics import cap_curve
-from .._ranking import delinquency_curve
+from datalib.metrics import (
+    cap_curve,
+    ranked_probability_score_loss,
+    delinquency_curve,
+)
 
 
 @pytest.fixture(scope="module")
@@ -202,3 +205,106 @@ def test_delinquency_curve__multilabel_exception():
         str(exc_info.value)
         == "Only binary classification is supported. Provided [0 1 2]."
     )
+
+
+def test_ranked_discrete_score_loss__two_examples_success():
+    binary_y_true = np.array([1, 0])
+    first_score = np.array([[0.1, 0.9], [0.9, 0.1]])
+    rps = ranked_probability_score_loss(binary_y_true, first_score)
+    assert rps < 0.01
+
+    second_score = np.array([[1, 0], [0, 1]])
+    rps = ranked_probability_score_loss(binary_y_true, second_score)
+    assert rps == 1
+
+    third_score = np.array([[0, 1], [1, 0]])
+    rps = ranked_probability_score_loss(binary_y_true, third_score)
+    assert rps == 0
+
+
+def test_ranked_discrete_score_loss__four_examples_success():
+    y_true = np.array([0, 0, 1, 0])
+    y_prob_model_1 = np.array(
+        [[0.7, 0.3], [0.85, 0.15], [0.3, 0.7], [0.9, 0.1]]
+    )
+    rps_model_1 = ranked_probability_score_loss(y_true, y_prob_model_1)
+    y_prob_model_2 = np.array(
+        [[0.6, 0.4], [0.85, 0.15], [0.3, 0.7], [0.9, 0.1]]
+    )
+    rps_model_2 = ranked_probability_score_loss(y_true, y_prob_model_2)
+    assert rps_model_1 < rps_model_2
+
+    y_prob_model_3 = np.array([[0.9, 0.1], [0.9, 0.1], [0.2, 0.8], [0.9, 0.1]])
+    rps_model_3 = ranked_probability_score_loss(y_true, y_prob_model_3)
+    assert rps_model_3 < rps_model_1
+
+
+def test_ranked_discrete_score_loss__three_examples_three_classes_success():
+    multi_y_true = np.array([2, 1, 0])
+    first_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+
+    rps = ranked_probability_score_loss(multi_y_true, first_score)
+    assert rps < 0.01
+
+    second_score = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])
+    rps = ranked_probability_score_loss(multi_y_true, second_score)
+    assert rps == 0
+
+    third_score = np.array([[1, 0, 0], [1, 0, 0], [0, 0, 1]])
+    rps = ranked_probability_score_loss(multi_y_true, third_score)
+    assert rps > 0.8
+
+
+def test_ranked_discrete_score_loss__three_examples_ordinal_success():
+    multi_y_true = np.array([2, 1, 0])
+    first_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+
+    rps_first_model = ranked_probability_score_loss(multi_y_true, first_score)
+
+    second_score = np.array(
+        [[0.01, 0.09, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+    rps_second_model = ranked_probability_score_loss(
+        multi_y_true, second_score
+    )
+    assert rps_second_model < rps_first_model
+
+
+def test_ranked_discrete_score_loss__three_examples_ordinal_success_label():
+    multi_y_true = np.array(["2", "1", "0"])
+    label = ["0", "1", "2"]
+    first_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+
+    rps_first_model = ranked_probability_score_loss(
+        multi_y_true, first_score, labels=label
+    )
+
+    second_score = np.array(
+        [[0.01, 0.09, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+    rps_second_model = ranked_probability_score_loss(
+        multi_y_true, second_score, labels=label
+    )
+    assert rps_second_model < rps_first_model
+
+
+def test_ranked_discrete_score_loss__two_examples_success_sample_weight():
+    binary_y_true = np.array([1, 0])
+    first_score = np.array([[0.2, 0.8], [0.9, 0.1]])
+    first_sample_weight = np.array([1, 1])
+    rps = ranked_probability_score_loss(
+        binary_y_true, first_score, sample_weight=first_sample_weight
+    )
+    assert rps < 0.03
+
+    second_sample_weight = np.array([0.1, 1])
+    rps = ranked_probability_score_loss(
+        binary_y_true, first_score, sample_weight=second_sample_weight
+    )
+    assert rps < 0.015
