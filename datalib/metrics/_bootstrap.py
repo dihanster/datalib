@@ -6,7 +6,7 @@ from ..utils.nilvo import update_dic, all_equal
 
 
 def bootstrap_metric(
-    metric, gi, *, random_state=42, n_bootstrap=20, **kwargs
+    metric, kwargs_to_sample, *, random_state=42, n_bootstrap=20, **kwargs
 ):
     """TODO"""
     to_sample_dict = {
