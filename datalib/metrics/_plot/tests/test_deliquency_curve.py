@@ -52,8 +52,3 @@ def test_delinquency_display__assess_plot_parameters(iris_data_binary):
     expected_legend_labels = ["LogisticRegression", "The optimal default rate"]
     legend_labels = viz.ax_.get_legend().get_texts()
     assert len(legend_labels) == len(expected_legend_labels)
-<<<<<<< HEAD:datalib/tests/test_delinquency.py
-    for labels in legend_labels:
-        assert labels.get_text() in expected_legend_labels
-=======
->>>>>>> main:datalib/metrics/_plot/tests/test_deliquency_curve.py
