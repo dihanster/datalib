@@ -157,20 +157,27 @@ def ranked_probability_score_loss(
 ):
     """Ranked probability score loss.
 
-    The Unbiased RPS is used to quantify the performance of probabilistic prediction systems. It compares the cumulative density function of a probabilistic forecast with a ground truth, conditioned by a number of levels(Categories).
+    The Unbiased RPS is used to quantify the performance of probabilistic
+    prediction systems. It compares the cumulative density function of a
+    probabilistic forecast with a ground truth, conditioned by a number of
+    levels(Categories).
 
-    This metric outputs a number value between 0 and 1, where the smaller the better. It is appropriate for ordinal outcome variables as long as it compares the cumulative distribution.
+    This metric outputs a number value between 0 and 1, where the smaller the
+    better. It is appropriate for ordinal outcome variables as long as it
+    compares the cumulative distribution.
 
     Parameters
     ----------
     y_true : ndarray of shape (n_samples,)
-        True targets of classification. If labels are not integer ordinal, then pos_label should be explicitly given.
+        True targets of classification. If labels are not integer ordinal, then
+        pos_label should be explicitly given.
 
     y_score : ndarray of shape (n_samples, n_classes)
         Estimated probabilities or output of a model / decision function.
 
     labels : array-like of shape (n_classes,) or None
-        List of labels to index ``y_score``. If ``None``, the lexical order of ``y_true`` is used to index ``y_score``.
+        List of labels to index ``y_score``. If ``None``, the lexical order of
+        ``y_true`` is used to index ``y_score``.
 
     sample_weight : array-like of shape (n_samples,), default=None
         Sample weights. If `None`, all samples are given the same weight.
@@ -183,13 +190,16 @@ def ranked_probability_score_loss(
     References
     ----------
     .. [1] `The Discrete Brier and Ranked Probability Skill Scores
-            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.xml>`_
+            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.
+            xml>`_
 
     .. [2] `Forecast Verification - Issues, Methods and FAQ
-            <https://www.cawcr.gov.au/projects/verification/verif_web_page.html#RPS>`_
+            <https://www.cawcr.gov.au/projects/verification/verif_web_page.
+            html#RPS>`_
 
     .. [3] `Statistical Concepts - Probabilistic Data
-            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+Concepts+-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores(RPS)>`_
+            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+Concepts
+            +-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores(RPS)>`_
 
     Examples
     --------
