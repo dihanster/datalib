@@ -1,3 +1,6 @@
+"""
+Module with tests for the Delinquency display functions.
+"""
 import pytest
 
 from ..delinquency_curve import DeliquencyDisplay
