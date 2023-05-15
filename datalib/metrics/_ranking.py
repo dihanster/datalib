@@ -145,7 +145,8 @@ def delinquency_curve(y_true, y_score, pos_label=None, sample_weight=None):
     y_true_sorted = y_true[actual_idxs].copy()
     sorted_weights = weights[scores_idxs].copy()
 
-    approval_rate = np.arange(0, 1.1, 1 / len(y_true_sorted_by_scores))
+    step_approval_rate = 1 / len(y_true_sorted_by_scores)
+    approval_rate = np.arange(0, 1 + step_approval_rate, step_approval_rate)
     default_rate = np.append(
         0, y_true_sorted_by_scores.cumsum() / sorted_weights.cumsum()
     )
