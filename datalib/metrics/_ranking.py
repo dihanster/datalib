@@ -136,10 +136,9 @@ def delinquency_curve(y_true, y_score, pos_label=None, sample_weight=None):
     scores_idxs = np.argsort(y_score)[::1]
     actual_idxs = np.argsort(y_true)[::1]
 
-    if sample_weight is not None:
-        weights = sample_weight
-    else:
-        weights = np.ones(len(y_true))
+    weights = _check_sample_weight(
+        sample_weight, y_true, only_non_negative=True
+    )
 
     y_true_sorted_by_scores = y_true[scores_idxs].copy()
     y_true_sorted = y_true[actual_idxs].copy()

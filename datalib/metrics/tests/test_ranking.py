@@ -222,3 +222,21 @@ def test_delinquency_curve__success_case_sample_weight():
     assert_almost_equal(
         optimal_rate, np.array([0, 0, 0, 0.4761904, 0.645161]), decimal=5
     )
+
+
+def test_delinquency_curve__sample_weights():
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+
+    _, default_rate__none, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=None
+    )
+    _, default_rate__np_ones, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=np.ones(len(y_scores))
+    )
+    assert_array_equal(default_rate__np_ones, default_rate__none)
+
+    _, default_rate__list, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=np.array(4 * [1])
+    )
+    assert_array_equal(default_rate__none, default_rate__list)
