@@ -237,6 +237,6 @@ def test_delinquency_curve__sample_weights():
     assert_array_equal(default_rate__np_ones, default_rate__none)
 
     _, default_rate__list, _ = delinquency_curve(
-        y_true, y_scores, sample_weight=np.array(4 * [1])
+        y_true, y_scores, sample_weight=4 * np.ones(len(y_score))
     )
     assert_array_equal(default_rate__none, default_rate__list)
