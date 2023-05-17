@@ -13,7 +13,7 @@ jobs:
     - name: Install requirements
       run: |
         pip install -r requirements.txt
-        pip install pytest
+        pip install pytest-cov
     - name: Run tests and collect coverage
       working-directory: ./datalib
       run: pytest --cov .
