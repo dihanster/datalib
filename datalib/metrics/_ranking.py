@@ -140,6 +140,7 @@ def delinquency_curve(y_true, y_score, pos_label=None, sample_weight=None):
         sample_weight, y_true, only_non_negative=True
     )
 
+    weights = weights / weights.max()
     y_true_sorted_by_scores = y_true[scores_idxs].copy()
     y_true_sorted = y_true[actual_idxs].copy()
     sorted_weights = weights[scores_idxs].copy()
