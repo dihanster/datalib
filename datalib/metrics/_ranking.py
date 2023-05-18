@@ -5,19 +5,20 @@ from sklearn.utils import (
     check_array,
     column_or_1d,
     check_consistent_length,
-    assert_all_finite
+    assert_all_finite,
 )
 from sklearn.preprocessing import label_binarize
 
 from sklearn.metrics._base import (
-    _average_binary_score, 
+    _average_binary_score,
     _average_multiclass_ovo_score,
-    _check_pos_label_consistency
+    _check_pos_label_consistency,
 )
 from sklearn.metrics import roc_curve
 
 from sklearn.utils._encode import _encode, _unique
 from sklearn.utils.validation import _check_sample_weight
+
 
 def ks_score(
     y_true,
@@ -206,6 +207,7 @@ def ks_score(
             sample_weight=sample_weight,
         )
 
+
 def _binary_ks_score(y_true, y_score, sample_weight=None):
     """Binary KS score.
 
@@ -228,6 +230,7 @@ def _binary_ks_score(y_true, y_score, sample_weight=None):
 
     fpr, tpr, _ = roc_curve(y_true, y_score, sample_weight=sample_weight)
     return np.max(tpr - fpr)
+
 
 def _multiclass_ks_score(
     y_true, y_score, labels, multi_class, average, sample_weight
@@ -288,7 +291,9 @@ def _multiclass_ks_score(
         average_options = ("micro",) + average_options
     if average not in average_options:
         raise ValueError(
-            "average must be one of {0} for multiclass problems".format(average_options)
+            "average must be one of {0} for multiclass problems".format(
+                average_options
+            )
         )
 
     multiclass_options = ("ovo", "ovr")
@@ -314,10 +319,14 @@ def _multiclass_ks_score(
         if len(classes) != y_score.shape[1]:
             raise ValueError(
                 "Number of given labels, {0}, not equal to the number "
-                "of columns in 'y_score', {1}".format(len(classes), y_score.shape[1])
+                "of columns in 'y_score', {1}".format(
+                    len(classes), y_score.shape[1]
+                )
             )
         if len(np.setdiff1d(y_true, classes)):
-            raise ValueError("'y_true' contains labels not in parameter 'labels'")
+            raise ValueError(
+                "'y_true' contains labels not in parameter 'labels'"
+            )
     else:
         classes = _unique(y_true)
         if len(classes) != y_score.shape[1]:
@@ -349,22 +358,25 @@ def _multiclass_ks_score(
             sample_weight=sample_weight,
         )
 
+
 def numpy_fill(arr):
-    '''Solution provided by Divakar.
-    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array'''
+    """Solution provided by Divakar.
+    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
+    """
     mask = np.isnan(arr)
-    idx = np.where(~mask,np.arange(mask.shape[0]),0)
+    idx = np.where(~mask, np.arange(mask.shape[0]), 0)
     np.maximum.accumulate(idx, axis=0, out=idx)
     out = arr[idx]
     return out
 
+
 def scipy_inspired(data1, data2, wei1, wei2):
     ix1 = np.argsort(data1)
     ix2 = np.argsort(data2)
-    
+
     min_data = np.min([data1[ix1[0]], data2[ix2[0]]])
     max_data = np.max([data1[ix1[-1]], data2[ix2[-1]]])
-    
+
     data1 = np.hstack([min_data, data1[ix1], max_data])
     data2 = np.hstack([min_data, data2[ix2], max_data])
     wei1 = wei1[ix1]
@@ -378,21 +390,25 @@ def scipy_inspired(data1, data2, wei1, wei2):
     threshold_idxs = np.r_[distinct_value_indices, data.size - 1]
 
     dic1 = dict(zip(data1, cwei1))
-    dic1.update({min_data:0, max_data:1})
+    dic1.update({min_data: 0, max_data: 1})
     y1 = np.array(list(map(dic1.get, data[threshold_idxs])))
     y1 = numpy_fill(y1.astype(float))
 
     dic2 = dict(zip(data2, cwei2))
-    dic2.update({min_data:0, max_data:1})
+    dic2.update({min_data: 0, max_data: 1})
     y2 = np.array(list(map(dic2.get, data[threshold_idxs])))
     y2 = numpy_fill(y2.astype(float))
-    
+
     return y1, y2, data[threshold_idxs]
+
 
 def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
     # Check to make sure y_true is valid
     y_type = type_of_target(y_true, input_name="y_true")
-    if not (y_type == "binary" or (y_type == "multiclass" and pos_label is not None)):
+    if not (
+        y_type == "binary"
+        or (y_type == "multiclass" and pos_label is not None)
+    ):
         raise ValueError("{0} format is not supported".format(y_type))
 
     check_consistent_length(y_true, y_score, sample_weight)
@@ -414,7 +430,7 @@ def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
     # make y_true a boolean vector
     y_true = y_true == pos_label
 
-    mask_pos = y_true==pos_label
+    mask_pos = y_true == pos_label
     z1 = y_score[mask_pos]
     z0 = y_score[~mask_pos]
 
@@ -427,4 +443,3 @@ def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
 
     acum1, acum0, thresholds = scipy_inspired(z1, z0, w1, w0)
     return acum1, acum0, thresholds
-
