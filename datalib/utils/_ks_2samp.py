@@ -5,7 +5,7 @@ def numpy_fill(arr):
     """
     TODO: docstring.
     Solution provided by Divakar.
-    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array #noqa
+    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array # noqa
     """
     mask = np.isnan(arr)
     idx = np.where(~mask, np.arange(mask.shape[0]), 0)
