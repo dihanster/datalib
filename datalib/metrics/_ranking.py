@@ -20,6 +20,8 @@ from sklearn.utils._encode import _encode, _unique
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _check_sample_weight
 
+from .utils._ks_2samp import scipy_inspired_ks_2samp
+
 
 def cap_curve(
     y_true,
@@ -149,7 +151,7 @@ def delinquency_curve(y_true, y_score, pos_label=None):
 
     return approval_rate, default_rate, optimal_rate
 
-  
+
 def ks_score(
     y_true,
     y_score,
@@ -188,9 +190,9 @@ def ks_score(
           `(n_samples, n_classes)` of probability estimates provided by the
           `predict_proba` method. The probability estimates **must**
           sum to 1 across the possible classes. In addition, the order of the
-          class scores must correspond to the order of ``labels``,
+          class scores must correspond to the order of `labels`,
           if provided, or else to the numerical or lexicographical order of
-          the labels in ``y_true``;
+          the labels in `y_true`;
         * In the multilabel case, it corresponds to an array of shape
           `(n_samples, n_classes)`. Probability estimates are provided by the
           `predict_proba` method and the non-thresholded decision values by
@@ -200,26 +202,26 @@ def ks_score(
 
     average : {'micro', 'macro', 'samples', 'weighted'} or None, \
             default='macro'
-        If ``None``, the scores for each class are returned.
+        If `None`, the scores for each class are returned.
         Otherwise, this determines the type of averaging performed on the data.
         Note: multiclass ROC AUC currently only handles the 'macro' and
         'weighted' averages. For multiclass targets, `average=None` is only
         implemented for `multi_class='ovo'` and `average='micro'` is only
         implemented for `multi_class='ovr'`.
 
-        ``'micro'``:
+        `'micro'`:
             Calculate metrics globally by considering each element of the label
             indicator matrix as a label.
-        ``'macro'``:
+        `'macro'`:
             Calculate metrics for each label, and find their unweighted
             mean.  This does not take label imbalance into account.
-        ``'weighted'``:
+        `'weighted'`:
             Calculate metrics for each label, and find their average, weighted
             by support (the number of true instances for each label).
-        ``'samples'``:
+        `'samples'`:
             Calculate metrics for each instance, and find their average.
 
-        Will be ignored when ``y_true`` is binary.
+        Will be ignored when `y_true` is binary.
 
     sample_weight : array-like of shape (n_samples,), default=None
         Sample weights.
@@ -227,25 +229,25 @@ def ks_score(
     multi_class : {'raise', 'ovr', 'ovo'}, default='raise'
         Only used for multiclass targets. Determines the type of configuration
         to use. The default value raises an error, so either
-        ``'ovr'`` or ``'ovo'`` must be passed explicitly.
+        `'ovr'` or `'ovo'` must be passed explicitly.
 
-        ``'ovr'``:
+        `'ovr'`:
             Stands for One-vs-rest. Computes the AUC of each class
             against the rest [3]_ [4]_. This
             treats the multiclass case in the same way as the multilabel case.
-            Sensitive to class imbalance even when ``average == 'macro'``,
+            Sensitive to class imbalance even when `average == 'macro'`,
             because class imbalance affects the composition of each of the
             'rest' groupings.
-        ``'ovo'``:
+        `'ovo'`:
             Stands for One-vs-one. Computes the average AUC of all
             possible pairwise combinations of classes [5]_.
             Insensitive to class imbalance when
-            ``average == 'macro'``.
+            `average == 'macro'`.
 
     labels : array-like of shape (n_classes,), default=None
         Only used for multiclass targets. List of labels that index the
-        classes in ``y_score``. If ``None``, the numerical or lexicographical
-        order of the labels in ``y_true`` is used.
+        classes in `y_score`. If `None`, the numerical or lexicographical
+        order of the labels in `y_true` is used.
 
     Returns
     -------
@@ -363,7 +365,7 @@ def _binary_ks_score(y_true, y_score, sample_weight=None):
 
 
 def _multiclass_ks_score(
-    y_true, y_score, labels, multi_class, average, sample_weight
+    y_true, y_score, *, labels, multi_class, average, sample_weight
 ):
     """Multiclass KS score.
 
@@ -377,16 +379,16 @@ def _multiclass_ks_score(
         belonging to a particular class.
 
     labels : array-like of shape (n_classes,) or None
-        List of labels to index ``y_score`` used for multiclass. If ``None``,
-        the lexical order of ``y_true`` is used to index ``y_score``.
+        List of labels to index `y_score` used for multiclass. If `None`,
+        the lexical order of `y_true` is used to index `y_score`.
 
     multi_class : {'ovr', 'ovo'}
         Determines the type of multiclass configuration to use.
 
-        ``'ovr'``:
+        `'ovr'`:
             Calculate metrics for the multiclass case using the one-vs-rest
             approach.
-        ``'ovo'``:
+        `'ovo'`:
             Calculate metrics for the multiclass case using the one-vs-one
             approach.
 
@@ -394,14 +396,14 @@ def _multiclass_ks_score(
         Determines the type of averaging performed on the pairwise binary
         metric scores.
 
-        ``'micro'``:
+        `'micro'`:
             Calculate metrics for the binarized-raveled classes. Only supported
             for `multi_class='ovr'`.
-        ``'macro'``:
+        `'macro'`:
             Calculate metrics for each label, and find their unweighted
             mean. This does not take label imbalance into account. Classes
             are assumed to be uniformly distributed.
-        ``'weighted'``:
+        `'weighted'`:
             Calculate metrics for each label, taking into account the
             prevalence of the classes.
 
@@ -489,50 +491,11 @@ def _multiclass_ks_score(
         )
 
 
-def numpy_fill(arr):
-    """Solution provided by Divakar.
-    https://stackoverflow.com/questions/41190852/most-efficient-way-to-forward-fill-nan-values-in-numpy-array
-    """
-    mask = np.isnan(arr)
-    idx = np.where(~mask, np.arange(mask.shape[0]), 0)
-    np.maximum.accumulate(idx, axis=0, out=idx)
-    out = arr[idx]
-    return out
-
-
-def scipy_inspired(data1, data2, wei1, wei2):
-    ix1 = np.argsort(data1)
-    ix2 = np.argsort(data2)
-
-    min_data = np.min([data1[ix1[0]], data2[ix2[0]]])
-    max_data = np.max([data1[ix1[-1]], data2[ix2[-1]]])
-
-    data1 = np.hstack([min_data, data1[ix1], max_data])
-    data2 = np.hstack([min_data, data2[ix2], max_data])
-    wei1 = wei1[ix1]
-    wei2 = wei2[ix2]
-    data = np.sort(np.concatenate([data1, data2]))
-    cwei1 = np.hstack([min_data, np.cumsum(wei1) / np.sum(wei1), max_data])
-    cwei2 = np.hstack([min_data, np.cumsum(wei2) / np.sum(wei2), max_data])
-
-    data = np.sort(np.concatenate([data1, data2]))
-    distinct_value_indices = np.where(np.diff(data))[0]
-    threshold_idxs = np.r_[distinct_value_indices, data.size - 1]
-
-    dic1 = dict(zip(data1, cwei1))
-    dic1.update({min_data: 0, max_data: 1})
-    y1 = np.array(list(map(dic1.get, data[threshold_idxs])))
-    y1 = numpy_fill(y1.astype(float))
-
-    dic2 = dict(zip(data2, cwei2))
-    dic2.update({min_data: 0, max_data: 1})
-    y2 = np.array(list(map(dic2.get, data[threshold_idxs])))
-    y2 = numpy_fill(y2.astype(float))
-
-    return y1, y2, data[threshold_idxs]
-
 
 def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
+    """
+    TODO: docstring.
+    """
     # Check to make sure y_true is valid
     y_type = type_of_target(y_true, input_name="y_true")
     if not (
@@ -571,5 +534,5 @@ def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
         w1 = np.ones(z1.shape)
         w0 = np.ones(z0.shape)
 
-    acum1, acum0, thresholds = scipy_inspired(z1, z0, w1, w0)
+    acum1, acum0, thresholds = scipy_inspired_ks_2samp(z1, z0, w1, w0)
     return acum1, acum0, thresholds
