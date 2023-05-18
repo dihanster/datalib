@@ -20,7 +20,7 @@ from sklearn.utils._encode import _encode, _unique
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _check_sample_weight
 
-from .utils._ks_2samp import scipy_inspired_ks_2samp
+from ..utils._ks_2samp import scipy_inspired_ks_2samp
 
 
 def cap_curve(
@@ -489,7 +489,6 @@ def _multiclass_ks_score(
             average,
             sample_weight=sample_weight,
         )
-
 
 
 def ks_curve(y_true, y_score, *, pos_label=None, sample_weight=None):
