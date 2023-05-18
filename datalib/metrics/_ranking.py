@@ -260,7 +260,9 @@ def ranked_probability_score_loss(
     y_true_encoded = _encode(y_true, uniques=classes)
     y_true_one_hot = transform_label_vector_to_matrix(y_true_encoded)
     check_consistent_length(y_true_one_hot, y_score)
-
+    sample_weight = _check_sample_weight(
+        sample_weight, y_true, only_non_negative=True
+    )
     bias_correction = len(set(y_true)) - 1
 
     y_true_cumsum = np.cumsum(y_true_one_hot, axis=1)
