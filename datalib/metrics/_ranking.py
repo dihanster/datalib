@@ -14,6 +14,7 @@ from sklearn.utils import (
 from sklearn.utils._encode import _encode, _unique
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _check_sample_weight
+from datalib.utils import _transform_label_vector_to_matrix
 
 
 def cap_curve(
@@ -145,42 +146,36 @@ def delinquency_curve(y_true, y_score, pos_label=None):
     return approval_rate, default_rate, optimal_rate
 
 
-def transform_label_vector_to_matrix(y_true):
-    base_array = np.max(y_true) + 1
-    base_array = np.eye(base_array)[y_true]
-
-    return base_array
-
-
 def ranked_probability_score_loss(
     y_true, y_score, *, labels=None, sample_weight=None
 ):
     """Ranked probability score loss.
 
-    The Unbiased RPS is used to quantify the performance of probabilistic
-    prediction systems. It compares the cumulative density function of a
-    probabilistic forecast with a ground truth, conditioned by a number of
-    levels(Categories).
+    The Unbiased RPS is used to quantify the performance of
+    probabilistic prediction systems. It compares the cumulative density function of a probabilistic forecast with a ground truth.
 
-    This metric outputs a number value between 0 and 1, where the smaller the
-    better. It is appropriate for ordinal outcome variables as long as it
-    compares the cumulative distribution.
+    This metric outputs a number value between 0 and 1, where the
+    smaller, the better. It is appropriate for ordinal outcome
+    variables, owing to the intrinsic cumulative structure, which
+    doesn't assume equidistance between classes.
 
     Parameters
     ----------
     y_true : ndarray of shape (n_samples,)
-        True targets of classification. If labels are not integer ordinal, then
-        pos_label should be explicitly given.
+        True targets of classification. If labels are not integer
+        ordinal, then pos_label should be explicitly given.
 
     y_score : ndarray of shape (n_samples, n_classes)
-        Estimated probabilities or output of a model / decision function.
+        Estimated probabilities or output of a model / decision
+        function.
 
     labels : array-like of shape (n_classes,) or None
-        List of labels to index ``y_score``. If ``None``, the lexical order of
-        ``y_true`` is used to index ``y_score``.
+        List of labels to index `y_score`. If `None`, the lexical order
+        of `y_true` is used to index `y_score`.
 
     sample_weight : array-like of shape (n_samples,), default=None
-        Sample weights. If `None`, all samples are given the same weight.
+        Sample weights. If `None`, all samples are given the same
+        weight.
 
     Returns
     -------
@@ -190,24 +185,25 @@ def ranked_probability_score_loss(
     References
     ----------
     .. [1] `The Discrete Brier and Ranked Probability Skill Scores
-            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr3280.1.
-            xml>`_
+            <https://journals.ametsoc.org/view/journals/mwre/135/1/mwr32
+            80.1.xml>`_
 
     .. [2] `Forecast Verification - Issues, Methods and FAQ
-            <https://www.cawcr.gov.au/projects/verification/verif_web_page.
-            html#RPS>`_
+            <https://www.cawcr.gov.au/projects/verification/verif_web_pa
+            ge.html#RPS>`_
 
     .. [3] `Statistical Concepts - Probabilistic Data
-            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+Concepts
-            +-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores(RPS)>`_
+            <https://confluence.ecmwf.int/display/FUG/12.B+Statistical+C
+            oncepts+-+Probabilistic+Data#id-12.BStatisticalConceptsProbabilisticData-RankProbabilityScores
+            (RPS)>`_
 
     Examples
     --------
-    >>> from sklearn.datasets import make_classification
+    >>> from sklearn.datasets import load_iris
     >>> from sklearn.model_selection import train_test_split
     >>> from sklearn.linear_model import LogisticRegression
     >>> from datalib.metrics import ranked_probability_score_loss
-    >>> X, y = make_classification(random_state=0)
+    >>> X, y = load_iris()
     >>> X_train, X_test, y_train, y_test = train_test_split(
     ...     X, y, random_state=0)
     >>> clf = LogisticRegression(random_state=0)
@@ -215,6 +211,7 @@ def ranked_probability_score_loss(
         LogisticRegression(random_state=0)
     >>> y_proba = clf.predict_proba(X_test)
     >>> ranked_probability_score_loss(y_test, y_proba)
+    ... 0.019860025141610962
     """
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_score = check_array(y_score, ensure_2d=False)
@@ -258,7 +255,7 @@ def ranked_probability_score_loss(
             )
 
     y_true_encoded = _encode(y_true, uniques=classes)
-    y_true_one_hot = transform_label_vector_to_matrix(y_true_encoded)
+    y_true_one_hot = _transform_label_vector_to_matrix(y_true_encoded)
     check_consistent_length(y_true_one_hot, y_score)
     sample_weight = _check_sample_weight(
         sample_weight, y_true, only_non_negative=True
