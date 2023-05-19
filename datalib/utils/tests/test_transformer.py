@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from numpy.testing import assert_array_equal
 from datalib.utils import _transform_label_vector_to_matrix

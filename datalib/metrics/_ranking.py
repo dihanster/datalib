@@ -152,7 +152,8 @@ def ranked_probability_score_loss(
     """Ranked probability score loss.
 
     The Unbiased RPS is used to quantify the performance of
-    probabilistic prediction systems. It compares the cumulative density function of a probabilistic forecast with a ground truth.
+    probabilistic prediction systems. It compares the cumulative density
+     function of a probabilistic forecast with a ground truth.
 
     This metric outputs a number value between 0 and 1, where the
     smaller, the better. It is appropriate for ordinal outcome
