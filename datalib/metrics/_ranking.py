@@ -212,7 +212,7 @@ def ranked_probability_score_loss(
         LogisticRegression(random_state=0)
     >>> y_proba = clf.predict_proba(X_test)
     >>> ranked_probability_score_loss(y_test, y_proba)
-    ... 0.019860025141610962
+    0.019860025141610962
     """
     y_true = check_array(y_true, ensure_2d=False, dtype=None)
     y_score = check_array(y_score, ensure_2d=False)
