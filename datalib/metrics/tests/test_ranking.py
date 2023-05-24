@@ -14,8 +14,11 @@ from sklearn import svm
 from sklearn.metrics import roc_auc_score
 from sklearn.utils.validation import check_random_state
 
-from datalib.metrics import cap_curve
-from .._ranking import delinquency_curve
+from datalib.metrics import (
+    cap_curve,
+    ranked_probability_score_loss,
+    delinquency_curve,
+)
 
 
 @pytest.fixture(scope="module")
@@ -192,3 +195,124 @@ def test_delinquency_curve__multilabel_exception():
         str(exc_info.value)
         == "Only binary classification is supported. Provided [0 1 2]."
     )
+
+
+def test_ranked_proba_score_loss__perfect_model_two_classes():
+    """This test evaluates the perfect model and its opposite with 0 and
+    1 of RS, respectively. The third test is an almost perfect model
+    with a low return on RPS.
+    """
+    binary_y_true = np.array([1, 0])
+
+    first_score = np.array([[1, 0], [0, 1]])
+    rps = ranked_probability_score_loss(binary_y_true, first_score)
+    assert rps == 1
+
+    second_score = np.array([[0, 1], [1, 0]])
+    rps = ranked_probability_score_loss(binary_y_true, second_score)
+    assert rps == 0
+
+    third_score = np.array([[0.1, 0.9], [0.9, 0.1]])
+    rps = ranked_probability_score_loss(binary_y_true, third_score)
+    assert rps < 0.01
+
+
+def test_ranked_proba_score_loss__comparison_between_probs_two_classes():
+    """It compares three different predicted probas. The second is a
+    worse version of the first one, and the third is the best. We
+    evaluate if rps_model_1 < rps_model_2 and rpc_model_3 < rpc_model_1.
+    """
+    y_true = np.array([0, 0, 1, 0])
+    y_prob_model_1 = np.array(
+        [[0.7, 0.3], [0.85, 0.15], [0.3, 0.7], [0.9, 0.1]]
+    )
+    rps_model_1 = ranked_probability_score_loss(y_true, y_prob_model_1)
+    y_prob_model_2 = np.array(
+        [[0.6, 0.4], [0.85, 0.15], [0.3, 0.7], [0.9, 0.1]]
+    )
+    rps_model_2 = ranked_probability_score_loss(y_true, y_prob_model_2)
+    assert rps_model_1 < rps_model_2
+
+    y_prob_model_3 = np.array([[0.9, 0.1], [0.9, 0.1], [0.2, 0.8], [0.9, 0.1]])
+    rps_model_3 = ranked_probability_score_loss(y_true, y_prob_model_3)
+    assert rps_model_3 < rps_model_1
+
+
+def test_ranked_proba_score_loss__perfect_model_three_classes():
+    """This test evaluates the perfect three-classes model and its
+    opposite with 0 and 0.83 of RS, respectively. The third test is an
+    almost perfect model with a low return on RPS.
+    """
+    multi_y_true = np.array([2, 1, 0])
+    first_score = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])
+    rps = ranked_probability_score_loss(multi_y_true, first_score)
+    assert rps == 0
+
+    second_score = np.array([[1, 0, 0], [1, 0, 0], [0, 0, 1]])
+    rps = ranked_probability_score_loss(multi_y_true, second_score)
+    assert rps > 0.83
+
+    third_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+    rps = ranked_probability_score_loss(multi_y_true, third_score)
+    assert rps < 0.01
+
+
+def test_ranked_proba_score_loss__comparison_between_probs_three_classes():
+    """It compares two different predicted probas. The second is a
+    worse version of the first one. We  evaluate if rps_model_1 <
+    rps_model_2.
+    """
+    multi_y_true = np.array([2, 1, 0])
+    first_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+
+    rps_first_model = ranked_probability_score_loss(multi_y_true, first_score)
+
+    second_score = np.array(
+        [[0.01, 0.09, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+    rps_second_model = ranked_probability_score_loss(
+        multi_y_true, second_score
+    )
+    assert rps_second_model < rps_first_model
+
+
+def test_ranked_proba_score_loss__labels_test():
+    """Test to assess labels."""
+    multi_y_true = np.array(["2", "1", "0"])
+    label = ["0", "1", "2"]
+    first_score = np.array(
+        [[0.08, 0.02, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+
+    rps_first_model = ranked_probability_score_loss(
+        multi_y_true, first_score, labels=label
+    )
+
+    second_score = np.array(
+        [[0.01, 0.09, 0.9], [0.02, 0.9, 0.08], [0.9, 0.02, 0.08]]
+    )
+    rps_second_model = ranked_probability_score_loss(
+        multi_y_true, second_score, labels=label
+    )
+    assert rps_second_model < rps_first_model
+
+
+def test_ranked_discrete_score_loss__two_examples_success_sample_weight():
+    """Test to assess sample_weight."""
+    binary_y_true = np.array([1, 0])
+    first_score = np.array([[0.2, 0.8], [0.9, 0.1]])
+    first_sample_weight = np.array([1, 1])
+    rps = ranked_probability_score_loss(
+        binary_y_true, first_score, sample_weight=first_sample_weight
+    )
+    assert rps < 0.03
+
+    second_sample_weight = np.array([0.1, 1])
+    rps = ranked_probability_score_loss(
+        binary_y_true, first_score, sample_weight=second_sample_weight
+    )
+    assert rps < 0.015
