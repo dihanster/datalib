@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datalib.metrics._plot.delinquency_curve &mdash; DataLib  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            DataLib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">DataLib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">datalib.metrics._plot.delinquency_curve</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datalib.metrics._plot.delinquency_curve</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.metrics._base</span> <span class="kn">import</span> <span class="n">_check_pos_label_consistency</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics._plot.base</span> <span class="kn">import</span> <span class="n">_get_response</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_matplotlib_support</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">is_classifier</span>
+<span class="kn">from</span> <span class="nn">datalib.metrics</span> <span class="kn">import</span> <span class="n">delinquency_curve</span>
+
+
+<div class="viewcode-block" id="DeliquencyDisplay"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.DeliquencyDisplay">[docs]</a><span class="k">class</span> <span class="nc">DeliquencyDisplay</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deliquency curve visualization.</span>
+<span class="sd">    It is recommended to use</span>
+<span class="sd">    :func:`~datalib.DeliquencyDisplay.from_estimator` or</span>
+<span class="sd">    :func:`~datalib.DeliquencyDisplay.from_predictions`</span>
+<span class="sd">    to create a `DeliquencyDisplay`. All parameters are stored as</span>
+<span class="sd">    attributes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    approval_rate : array-like, shape (n_samples,)</span>
+<span class="sd">        The relative percentage population approved.</span>
+
+<span class="sd">    default_rate : array-like, shape (n_samples,)</span>
+<span class="sd">        The default rate, a.k.a relative percentage of positives on the</span>
+<span class="sd">        sample.</span>
+
+<span class="sd">    optimal_rate : array-like, shape (n_samples,)</span>
+<span class="sd">        The optimal default rate.</span>
+
+<span class="sd">    estimator_name : str, default=None</span>
+<span class="sd">        Name of estimator. If None, the estimator name is not shown.</span>
+
+<span class="sd">    pos_label : str or int, default=None</span>
+<span class="sd">        The positive class when computing the deliquency curve.</span>
+<span class="sd">        By default, `estimators.classes_[1]` is considered as the</span>
+<span class="sd">        positive class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line_ : matplotlib Artist</span>
+<span class="sd">        Deliquency curve.</span>
+
+<span class="sd">    ax_ : matplotlib Axes</span>
+<span class="sd">        Axes with deliquency curve.</span>
+
+<span class="sd">    figure_ : matplotlib Figure</span>
+<span class="sd">        Figure containing the curve.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    delinquency_curve : The main method to calculate needed curves for</span>
+<span class="sd">    the delinquency analysis.</span>
+
+<span class="sd">    DeliquencyDisplay.from_predictions : Plot deliquency curve using</span>
+<span class="sd">    approval, default, and optimal rates.</span>
+
+<span class="sd">    DeliquencyDisplay.from_estimator : Plot deliquency curve using an</span>
+<span class="sd">    estimator and data.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression</span>
+<span class="sd">    &gt;&gt;&gt; from datalib import delinquency_curve, DeliquencyDisplay</span>
+<span class="sd">    &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(</span>
+<span class="sd">    ...     X, y, random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; clf = LogisticRegression(random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; clf.fit(X_train, y_train)</span>
+<span class="sd">    LogisticRegression(random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; y_prob = clf.predict_proba(X_test)[:, 1]</span>
+<span class="sd">    &gt;&gt;&gt; approval_rate, default_rate, optimal_rate =</span>
+<span class="sd">    ...     delinquency_curve(y_test, y_prob)</span>
+<span class="sd">    &gt;&gt;&gt; disp = DeliquencyDisplay(approval_rate, default_rate, optimal_rate)</span>
+<span class="sd">    &gt;&gt;&gt; disp.plot()</span>
+<span class="sd">    &lt;...&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">approval_rate</span><span class="p">,</span>
+        <span class="n">default_rate</span><span class="p">,</span>
+        <span class="n">optimal_rate</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">estimator_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">approval_rate</span> <span class="o">=</span> <span class="n">approval_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_rate</span> <span class="o">=</span> <span class="n">default_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal_rate</span> <span class="o">=</span> <span class="n">optimal_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator_name</span> <span class="o">=</span> <span class="n">estimator_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span> <span class="o">=</span> <span class="n">pos_label</span>
+
+<div class="viewcode-block" id="DeliquencyDisplay.plot"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.DeliquencyDisplay.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_line</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot visualization.</span>
+<span class="sd">        Extra keyword arguments will be passed to</span>
+<span class="sd">        :func:`matplotlib.pyplot.plot`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : Matplotlib Axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name for labeling curve. If `None`, use `estimator_name` if</span>
+<span class="sd">            not `None`, otherwise no labeling is shown.</span>
+
+<span class="sd">        ref_line : bool, default=True</span>
+<span class="sd">            If `True`, plots a reference line representing a perfectly</span>
+<span class="sd">            calibrated classifier.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~datalib.DeliquencyDisplay`</span>
+<span class="sd">            Object that stores computed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="s2">&quot;DeliquencyDisplay.plot&quot;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator_name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="n">info_pos_label</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;(Positive class: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">line_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">line_kwargs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">line_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">ref_line_label</span> <span class="o">=</span> <span class="s2">&quot;The optimal Default Rate&quot;</span>
+        <span class="n">existing_ref_line</span> <span class="o">=</span> <span class="n">ref_line_label</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ref_line</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">existing_ref_line</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">approval_rate</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimal_rate</span><span class="p">,</span>
+                <span class="s2">&quot;k:&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">ref_line_label</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">approval_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_rate</span><span class="p">,</span> <span class="s2">&quot;s-&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">line_kwargs</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Relative % of approvals on the population </span><span class="si">{</span><span class="n">info_pos_label</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Default Rate </span><span class="si">{</span><span class="n">info_pos_label</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DeliquencyDisplay.from_estimator"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.DeliquencyDisplay.from_estimator">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_estimator</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">estimator</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_line</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot deliquency curve using a binary classifier and data.</span>
+<span class="sd">        A deliquency curve leverages inputs from a binary classifier</span>
+<span class="sd">        and plots the default rates over unique approval rates, a.k.a</span>
+<span class="sd">        fractions of the population, on the y-axis.</span>
+<span class="sd">        Extra keyword arguments will be passed to</span>
+<span class="sd">        :func:`matplotlib.pyplot.plot`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        estimator : estimator instance</span>
+<span class="sd">            Fitted classifier or a fitted :class:`~sklearn.pipeline.Pipeline`</span>
+<span class="sd">            in which the last estimator is a classifier. The classifier</span>
+<span class="sd">            must have a :term:`predict_proba` method.</span>
+
+<span class="sd">        X : {array-like, sparse matrix} of shape (n_samples, n_features)</span>
+<span class="sd">            Input values.</span>
+
+<span class="sd">        y : array-like of shape (n_samples,)</span>
+<span class="sd">            Binary target values.</span>
+
+<span class="sd">        pos_label : str or int, default=None</span>
+<span class="sd">            The positive class when computing the calibration curve.</span>
+<span class="sd">            By default, `estimators.classes_[1]` is considered as the</span>
+<span class="sd">            positive class.</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name for labeling curve. If `None`, the name of the estimator</span>
+<span class="sd">             is used.</span>
+
+<span class="sd">        ref_line : bool, default=True</span>
+<span class="sd">            If `True`, plots a reference line representing a perfectly</span>
+<span class="sd">            calibrated classifier.</span>
+
+<span class="sd">        ax : matplotlib axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~datalib.DeliquencyDisplay`.</span>
+<span class="sd">            Object that stores computed values.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        DeliquencyDisplay.from_predictions : Plot deliquency curve using</span>
+<span class="sd">         true and predicted labels.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression</span>
+<span class="sd">        &gt;&gt;&gt; from datalib import DeliquencyDisplay</span>
+<span class="sd">        &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(</span>
+<span class="sd">        ...     X, y, random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; clf = LogisticRegression(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; clf.fit(X_train, y_train)</span>
+<span class="sd">        LogisticRegression(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; disp = DeliquencyDisplay.from_estimator(clf, X_test, y_test)</span>
+<span class="sd">        &gt;&gt;&gt; plt.show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_estimator&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_classifier</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;estimator&#39; should be a fitted classifier.&quot;</span><span class="p">)</span>
+
+        <span class="n">y_prob</span><span class="p">,</span> <span class="n">pos_label</span> <span class="o">=</span> <span class="n">_get_response</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">response_method</span><span class="o">=</span><span class="s2">&quot;predict_proba&quot;</span><span class="p">,</span> <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span>
+        <span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">estimator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span>
+            <span class="n">y</span><span class="p">,</span>
+            <span class="n">y_prob</span><span class="p">,</span>
+            <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">ref_line</span><span class="o">=</span><span class="n">ref_line</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeliquencyDisplay.from_predictions"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.DeliquencyDisplay.from_predictions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_predictions</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">y_true</span><span class="p">,</span>
+        <span class="n">y_prob</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_line</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot deliquency curve using true labels and predicted</span>
+<span class="sd">        probabilities.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y_true : array-like of shape (n_samples,)</span>
+<span class="sd">            True labels.</span>
+
+<span class="sd">        y_prob : array-like of shape (n_samples,)</span>
+<span class="sd">            The predicted probabilities of the positive class.</span>
+
+<span class="sd">        pos_label : str or int, default=None</span>
+<span class="sd">            The positive class when computing the calibration curve.</span>
+<span class="sd">            By default, `estimators.classes_[1]` is considered as the</span>
+<span class="sd">            positive class.</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name for labeling curve.</span>
+
+<span class="sd">        ref_line : bool, default=True</span>
+<span class="sd">            If `True`, plots a reference line representing a perfectly</span>
+<span class="sd">            calibrated classifier.</span>
+
+<span class="sd">        ax : matplotlib axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments to be passed to :func:`matplotlib.pyplot.plot`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~datalib.DeliquencyDisplay`.</span>
+<span class="sd">            Object that stores computed values.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        DeliquencyDisplay.from_estimator : Plot calibration curve using an</span>
+<span class="sd">            estimator and data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression</span>
+<span class="sd">        &gt;&gt;&gt; from datalib import DeliquencyDisplay</span>
+<span class="sd">        &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(</span>
+<span class="sd">        ...     X, y, random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; clf = LogisticRegression(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; clf.fit(X_train, y_train)</span>
+<span class="sd">        LogisticRegression(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; y_prob = clf.predict_proba(X_test)[:, 1]</span>
+<span class="sd">        &gt;&gt;&gt; disp = DeliquencyDisplay.from_predictions(y_test, y_prob)</span>
+<span class="sd">        &gt;&gt;&gt; plt.show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_estimator&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+
+        <span class="n">approval_rate</span><span class="p">,</span> <span class="n">default_rate</span><span class="p">,</span> <span class="n">optimal_rate</span> <span class="o">=</span> <span class="n">delinquency_curve</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">,</span> <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span>
+        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Classifier&quot;</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="n">pos_label</span> <span class="o">=</span> <span class="n">_check_pos_label_consistency</span><span class="p">(</span><span class="n">pos_label</span><span class="p">,</span> <span class="n">y_true</span><span class="p">)</span>
+
+        <span class="n">disp</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">approval_rate</span><span class="o">=</span><span class="n">approval_rate</span><span class="p">,</span>
+            <span class="n">default_rate</span><span class="o">=</span><span class="n">default_rate</span><span class="p">,</span>
+            <span class="n">optimal_rate</span><span class="o">=</span><span class="n">optimal_rate</span><span class="p">,</span>
+            <span class="n">estimator_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">disp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">ref_line</span><span class="o">=</span><span class="n">ref_line</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Serasa Experian DataLab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

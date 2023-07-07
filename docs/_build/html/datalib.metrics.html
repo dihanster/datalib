@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metrics &mdash; DataLib  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DataLib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Metrics</a><ul>
+<li><a class="reference internal" href="#module-datalib.metrics">Contents</a><ul>
+<li><a class="reference internal" href="#datalib.metrics.CAPCurveDisplay"><code class="docutils literal notranslate"><span class="pre">CAPCurveDisplay</span></code></a><ul>
+<li><a class="reference internal" href="#datalib.metrics.CAPCurveDisplay.from_estimator"><code class="docutils literal notranslate"><span class="pre">CAPCurveDisplay.from_estimator()</span></code></a></li>
+<li><a class="reference internal" href="#datalib.metrics.CAPCurveDisplay.from_predictions"><code class="docutils literal notranslate"><span class="pre">CAPCurveDisplay.from_predictions()</span></code></a></li>
+<li><a class="reference internal" href="#datalib.metrics.CAPCurveDisplay.plot"><code class="docutils literal notranslate"><span class="pre">CAPCurveDisplay.plot()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#datalib.metrics.DeliquencyDisplay"><code class="docutils literal notranslate"><span class="pre">DeliquencyDisplay</span></code></a><ul>
+<li><a class="reference internal" href="#datalib.metrics.DeliquencyDisplay.from_estimator"><code class="docutils literal notranslate"><span class="pre">DeliquencyDisplay.from_estimator()</span></code></a></li>
+<li><a class="reference internal" href="#datalib.metrics.DeliquencyDisplay.from_predictions"><code class="docutils literal notranslate"><span class="pre">DeliquencyDisplay.from_predictions()</span></code></a></li>
+<li><a class="reference internal" href="#datalib.metrics.DeliquencyDisplay.plot"><code class="docutils literal notranslate"><span class="pre">DeliquencyDisplay.plot()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#datalib.metrics.cap_curve"><code class="docutils literal notranslate"><span class="pre">cap_curve()</span></code></a></li>
+<li><a class="reference internal" href="#datalib.metrics.delinquency_curve"><code class="docutils literal notranslate"><span class="pre">delinquency_curve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DataLib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Metrics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/datalib.metrics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="metrics">
+<h1>Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading"></a></h1>
+<section id="module-datalib.metrics">
+<span id="contents"></span><h2>Contents<a class="headerlink" href="#module-datalib.metrics" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="datalib.metrics.CAPCurveDisplay">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datalib.metrics.</span></span><span class="sig-name descname"><span class="pre">CAPCurveDisplay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cumulative_gains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresholds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gini</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimator_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/cap_curve.html#CAPCurveDisplay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.CAPCurveDisplay" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>CAP Curve visualization.</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>cumulative_gains<span class="classifier">ndarray</span></dt><dd><p>Cumulative gain with each threshold (percentage of class 1).</p>
+</dd>
+<dt>thresholds<span class="classifier">ndarray</span></dt><dd><p>Increasing thresholds (percentage of examples) on the decision
+function used to compute cap curve.</p>
+</dd>
+<dt>positive_rate<span class="classifier">ndarray</span></dt><dd><p>Rate of positive class examples to compute the perfect curve.</p>
+</dd>
+<dt>gini<span class="classifier">float, default=None</span></dt><dd><p>Gini score. If None, the gini score is not shown.</p>
+</dd>
+<dt>estimator_name<span class="classifier">str, default=None</span></dt><dd><p>Name of estimator. If None, the estimator name is not shown.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The class considered as the positive class when computing
+the CAP curve.
+By default, <cite>estimators.classes_[1]</cite> is considered
+as the positive class.</p>
+</dd>
+</dl>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt><a href="#id34"><span class="problematic" id="id35">line_</span></a><span class="classifier">matplotlib Artist</span></dt><dd><p>CAP Curve.</p>
+</dd>
+<dt><a href="#id36"><span class="problematic" id="id37">ax_</span></a><span class="classifier">matplotlib Axes</span></dt><dd><p>Axes with CAP Curve.</p>
+</dd>
+<dt><a href="#id38"><span class="problematic" id="id39">figure_</span></a><span class="classifier">matplotlib Figure</span></dt><dd><p>Figure containing the curve.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.CAPCurveDisplay.from_estimator">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/cap_curve.html#CAPCurveDisplay.from_estimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.CAPCurveDisplay.from_estimator" title="Permalink to this definition"></a></dt>
+<dd><p>Create a CAP Curve display from an estimator.</p>
+<section id="id1">
+<h4>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>estimator<span class="classifier">estimator instance</span></dt><dd><p>Fitted classifier or a fitted <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>
+in which the last estimator is a classifier.</p>
+</dd>
+<dt>X<span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>Input values.</p>
+</dd>
+<dt>y<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>Target values.</p>
+</dd>
+<dt>sample_weight<span class="classifier">array-like of shape (n_samples,), default=None</span></dt><dd><p>Sample weights.</p>
+</dd>
+<dt>response_method<span class="classifier">{‘predict_proba’, ‘decision_function’, ‘auto’}                 default=’auto’</span></dt><dd><p>Specifies whether to use <span class="xref std std-term">predict_proba</span> or
+<span class="xref std std-term">decision_function</span> as the target response. If set to ‘auto’,
+<span class="xref std std-term">predict_proba</span> is tried first and if it does not exist
+<span class="xref std std-term">decision_function</span> is tried next.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The class considered as the positive class when computing the
+ROC-AUC metric. By default, <cite>estimators.classes_[1]</cite> is considered
+as the positive class.</p>
+</dd>
+<dt>plot_random<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline random curve (True)
+or not (False).</p>
+</dd>
+<dt>plot_perfect<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline perfect curve (True)
+or not (False).</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><p>Name of CAP Curve for labeling. If <cite>None</cite>, use the name of the
+estimator.</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is</p>
+</dd>
+</dl>
+<p>created.</p>
+<dl class="simple">
+<dt><a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Keyword arguments to be passed to matplotlib’s <cite>plot</cite>.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h4>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">CAPCurveDisplay</span></code></span></dt><dd><p>The ROC Curve display.</p>
+</dd>
+</dl>
+</section>
+<section id="examples">
+<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h4>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datalib.metrics</span> <span class="kn">import</span> <span class="n">CAPCurveDisplay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CAPCurveDisplay</span><span class="o">.</span><span class="n">from_estimator</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.CAPCurveDisplay.from_predictions">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/cap_curve.html#CAPCurveDisplay.from_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.CAPCurveDisplay.from_predictions" title="Permalink to this definition"></a></dt>
+<dd><p>Plot CAP curve given the true and predicted score.</p>
+<section id="id4">
+<h4>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>y_true<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>True labels.</p>
+</dd>
+<dt>y_score<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>Target scores, can either be probability estimates of the positive
+class, confidence values, or non-thresholded measure of decisions
+(as returned by “decision_function” on some classifiers).</p>
+</dd>
+<dt>sample_weight<span class="classifier">array-like of shape (n_samples,), default=None</span></dt><dd><p>Sample weights.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The label of the positive class. When <cite>pos_label=None</cite>, if <cite>y_true</cite>
+is in {-1, 1} or {0, 1}, <cite>pos_label</cite> is set to 1, otherwise an
+error will be raised.</p>
+</dd>
+<dt>plot_random<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline random curve (True)
+or not (False).</p>
+</dd>
+<dt>plot_perfect<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline perfect curve (True)
+or not (False).</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><p>Name of ROC curve for labeling. If <cite>None</cite>, name will be set to
+<cite>“Classifier”</cite>.</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is
+created.</p>
+</dd>
+<dt><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Additional keywords arguments passed to matplotlib <cite>plot</cite> function.</p>
+</dd>
+</dl>
+</section>
+<section id="id7">
+<h4>Returns<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">CAPCurveDisplay</span></code></span></dt><dd><p>Object that stores computed values.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h4>Examples<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h4>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datalib.metrics</span> <span class="kn">import</span> <span class="n">CAPCurveDisplay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CAPCurveDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.CAPCurveDisplay.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_random</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_perfect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/cap_curve.html#CAPCurveDisplay.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.CAPCurveDisplay.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot visualization
+Extra keyword arguments will be passed to matplotlib’s <code class="docutils literal notranslate"><span class="pre">plot</span></code>.</p>
+<section id="id9">
+<h4>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is
+created.</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><p>Name of CAP Curve for labeling. If <cite>None</cite>, use <cite>estimator_name</cite> if
+not <cite>None</cite>, otherwise no labeling is shown.</p>
+</dd>
+<dt>plot_random<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline random curve (True)
+or not (False).</p>
+</dd>
+<dt>plot_perfect<span class="classifier">boolean, default = False</span></dt><dd><p>Flag indicating whether to plot the baseline perfect curve (True)
+or not (False).</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h4>Returns<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">CAPCurveDisplay</span></code></span></dt><dd><p>Object that stores computed values.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datalib.metrics.DeliquencyDisplay">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datalib.metrics.</span></span><span class="sig-name descname"><span class="pre">DeliquencyDisplay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">approval_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimal_rate</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimator_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/delinquency_curve.html#DeliquencyDisplay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.DeliquencyDisplay" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Deliquency curve visualization.
+It is recommended to use
+<code class="xref py py-func docutils literal notranslate"><span class="pre">from_estimator()</span></code> or
+<code class="xref py py-func docutils literal notranslate"><span class="pre">from_predictions()</span></code>
+to create a <cite>DeliquencyDisplay</cite>. All parameters are stored as
+attributes.</p>
+<section id="id11">
+<h3>Parameters<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>approval_rate<span class="classifier">array-like, shape (n_samples,)</span></dt><dd><p>The relative percentage population approved.</p>
+</dd>
+<dt>default_rate<span class="classifier">array-like, shape (n_samples,)</span></dt><dd><p>The default rate, a.k.a relative percentage of positives on the
+sample.</p>
+</dd>
+<dt>optimal_rate<span class="classifier">array-like, shape (n_samples,)</span></dt><dd><p>The optimal default rate.</p>
+</dd>
+<dt>estimator_name<span class="classifier">str, default=None</span></dt><dd><p>Name of estimator. If None, the estimator name is not shown.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The positive class when computing the deliquency curve.
+By default, <cite>estimators.classes_[1]</cite> is considered as the
+positive class.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h3>Attributes<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt><a href="#id40"><span class="problematic" id="id41">line_</span></a><span class="classifier">matplotlib Artist</span></dt><dd><p>Deliquency curve.</p>
+</dd>
+<dt><a href="#id42"><span class="problematic" id="id43">ax_</span></a><span class="classifier">matplotlib Axes</span></dt><dd><p>Axes with deliquency curve.</p>
+</dd>
+<dt><a href="#id44"><span class="problematic" id="id45">figure_</span></a><span class="classifier">matplotlib Figure</span></dt><dd><p>Figure containing the curve.</p>
+</dd>
+</dl>
+</section>
+<section id="see-also">
+<h3>See Also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h3>
+<p>delinquency_curve : The main method to calculate needed curves for
+the delinquency analysis.</p>
+<p>DeliquencyDisplay.from_predictions : Plot deliquency curve using
+approval, default, and optimal rates.</p>
+<p>DeliquencyDisplay.from_estimator : Plot deliquency curve using an
+estimator and data.</p>
+</section>
+<section id="id13">
+<h3>Examples<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datalib</span> <span class="kn">import</span> <span class="n">delinquency_curve</span><span class="p">,</span> <span class="n">DeliquencyDisplay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="go">LogisticRegression(random_state=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_prob</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">approval_rate</span><span class="p">,</span> <span class="n">default_rate</span><span class="p">,</span> <span class="n">optimal_rate</span> <span class="o">=</span>
+<span class="gp">... </span>    <span class="n">delinquency_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disp</span> <span class="o">=</span> <span class="n">DeliquencyDisplay</span><span class="p">(</span><span class="n">approval_rate</span><span class="p">,</span> <span class="n">default_rate</span><span class="p">,</span> <span class="n">optimal_rate</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disp</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.DeliquencyDisplay.from_estimator">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/delinquency_curve.html#DeliquencyDisplay.from_estimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.DeliquencyDisplay.from_estimator" title="Permalink to this definition"></a></dt>
+<dd><p>Plot deliquency curve using a binary classifier and data.
+A deliquency curve leverages inputs from a binary classifier
+and plots the default rates over unique approval rates, a.k.a
+fractions of the population, on the y-axis.
+Extra keyword arguments will be passed to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</p>
+<section id="id14">
+<h4>Parameters<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>estimator<span class="classifier">estimator instance</span></dt><dd><p>Fitted classifier or a fitted <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>
+in which the last estimator is a classifier. The classifier
+must have a <span class="xref std std-term">predict_proba</span> method.</p>
+</dd>
+<dt>X<span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt><dd><p>Input values.</p>
+</dd>
+<dt>y<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>Binary target values.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The positive class when computing the calibration curve.
+By default, <cite>estimators.classes_[1]</cite> is considered as the
+positive class.</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><dl class="simple">
+<dt>Name for labeling curve. If <cite>None</cite>, the name of the estimator</dt><dd><p>is used.</p>
+</dd>
+</dl>
+</dd>
+<dt>ref_line<span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite>, plots a reference line representing a perfectly
+calibrated classifier.</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is
+created.</p>
+</dd>
+<dt><a href="#id15"><span class="problematic" id="id16">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Keyword arguments to be passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id17">
+<h4>Returns<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeliquencyDisplay</span></code>.</span></dt><dd><p>Object that stores computed values.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h4>See Also<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>DeliquencyDisplay.from_predictions<span class="classifier">Plot deliquency curve using</span></dt><dd><p>true and predicted labels.</p>
+</dd>
+</dl>
+</section>
+<section id="id19">
+<h4>Examples<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h4>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datalib</span> <span class="kn">import</span> <span class="n">DeliquencyDisplay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="go">LogisticRegression(random_state=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disp</span> <span class="o">=</span> <span class="n">DeliquencyDisplay</span><span class="o">.</span><span class="n">from_estimator</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.DeliquencyDisplay.from_predictions">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_prob</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/delinquency_curve.html#DeliquencyDisplay.from_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.DeliquencyDisplay.from_predictions" title="Permalink to this definition"></a></dt>
+<dd><p>Plot deliquency curve using true labels and predicted
+probabilities.</p>
+<section id="id20">
+<h4>Parameters<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>y_true<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>True labels.</p>
+</dd>
+<dt>y_prob<span class="classifier">array-like of shape (n_samples,)</span></dt><dd><p>The predicted probabilities of the positive class.</p>
+</dd>
+<dt>pos_label<span class="classifier">str or int, default=None</span></dt><dd><p>The positive class when computing the calibration curve.
+By default, <cite>estimators.classes_[1]</cite> is considered as the
+positive class.</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><p>Name for labeling curve.</p>
+</dd>
+<dt>ref_line<span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite>, plots a reference line representing a perfectly
+calibrated classifier.</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is
+created.</p>
+</dd>
+<dt><a href="#id21"><span class="problematic" id="id22">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Keyword arguments to be passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id23">
+<h4>Returns<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeliquencyDisplay</span></code>.</span></dt><dd><p>Object that stores computed values.</p>
+</dd>
+</dl>
+</section>
+<section id="id24">
+<h4>See Also<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>DeliquencyDisplay.from_estimator<span class="classifier">Plot calibration curve using an</span></dt><dd><p>estimator and data.</p>
+</dd>
+</dl>
+</section>
+<section id="id25">
+<h4>Examples<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h4>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datalib</span> <span class="kn">import</span> <span class="n">DeliquencyDisplay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="go">LogisticRegression(random_state=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_prob</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disp</span> <span class="o">=</span> <span class="n">DeliquencyDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datalib.metrics.DeliquencyDisplay.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_plot/delinquency_curve.html#DeliquencyDisplay.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.DeliquencyDisplay.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot visualization.
+Extra keyword arguments will be passed to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</p>
+<section id="id26">
+<h4>Parameters<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>ax<span class="classifier">Matplotlib Axes, default=None</span></dt><dd><p>Axes object to plot on. If <cite>None</cite>, a new figure and axes is
+created.</p>
+</dd>
+<dt>name<span class="classifier">str, default=None</span></dt><dd><p>Name for labeling curve. If <cite>None</cite>, use <cite>estimator_name</cite> if
+not <cite>None</cite>, otherwise no labeling is shown.</p>
+</dd>
+<dt>ref_line<span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite>, plots a reference line representing a perfectly
+calibrated classifier.</p>
+</dd>
+<dt><a href="#id27"><span class="problematic" id="id28">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>Keyword arguments to be passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id29">
+<h4>Returns<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h4>
+<dl>
+<dt>display<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeliquencyDisplay</span></code></span></dt><dd><p>Object that stores computed values.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datalib.metrics.cap_curve">
+<span class="sig-prename descclassname"><span class="pre">datalib.metrics.</span></span><span class="sig-name descname"><span class="pre">cap_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_ranking.html#cap_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.cap_curve" title="Permalink to this definition"></a></dt>
+<dd><p>Base method to calculate the Cumulative Accuracy Profile Curve (CAP Curve).
+This metric ponders the rate of positive samples and the percentage of the
+dataset covered by each sequential cut-off threshold.</p>
+<section id="id30">
+<h3>Parameters<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>y_true<span class="classifier">ndarray of shape (n_samples,)</span></dt><dd><p>True targets of binary classification.</p>
+</dd>
+<dt>y_score<span class="classifier">ndarray of shape (n_samples,)</span></dt><dd><p>Estimated probabilities or output of a model / decision function.</p>
+</dd>
+<dt>sample_weight<span class="classifier">array-like of shape (n_samples,), default=None</span></dt><dd><p>Sample weights. If <cite>None</cite>, all samples are given the same weight.</p>
+</dd>
+</dl>
+</section>
+<section id="id31">
+<h3>Returns<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>cumulative_gains<span class="classifier">ndarray of shape (n_samples,)</span></dt><dd><p>Cumulative gain with each threshold (percentage of class 1).</p>
+</dd>
+<dt>thresholds<span class="classifier">ndarray of shape (n_samples,)</span></dt><dd><p>Increasing thresholds (percentage of examples) on the decision
+function used to compute cap curve.</p>
+</dd>
+<dt>gini: ndarray of shape (n_samples,)</dt><dd><p>The normalized gini coefficient, calculated from the AUC.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datalib.metrics.delinquency_curve">
+<span class="sig-prename descclassname"><span class="pre">datalib.metrics.</span></span><span class="sig-name descname"><span class="pre">delinquency_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datalib/metrics/_ranking.html#delinquency_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datalib.metrics.delinquency_curve" title="Permalink to this definition"></a></dt>
+<dd><p>Delinquency curve for a binary classification.</p>
+<p>The delinquency curve shows how the default rate (proportion of
+pos_labels) changes with different approval rates. The curve is
+typically plotted on a graph, with the approval rate on the x-axis
+and the default rate on the y-axis. The curve is created by sorting
+the samples by score and calculating the default rate for
+subsequently larger population getting the best scores at first.</p>
+<p>Deliquency curve is key on many actuarial operations, where grasping
+the relative percentage of misclassification on approval levels is
+vital.</p>
+<section id="id32">
+<h3>Parameters<a class="headerlink" href="#id32" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>y_true<span class="classifier">array-like, shape (n_samples,)</span></dt><dd><p>True binary labels. If labels are not either {-1, 1} or {0, 1},
+then pos_label should be explicitly given.</p>
+</dd>
+<dt>y_score<span class="classifier">array-like, shape (n_samples,)</span></dt><dd><p>Target scores, can either be probability estimates of the
+positive class, confidence values, or non-thresholded measure of
+decisions (as returned by “decision_function” on some
+classifiers).</p>
+</dd>
+<dt>pos_label<span class="classifier">int or str, default=None</span></dt><dd><p>The label of the positive class.</p>
+</dd>
+</dl>
+</section>
+<section id="id33">
+<h3>Returns<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>approval_rate: array-like, shape (n_samples,).</dt><dd><p>Increasing approval rate (percentage of approved best scores)
+used to compute <cite>default_rate</cite>. It lies in the support (0, 1).</p>
+</dd>
+<dt>default_rate: array-like, shape (n_samples,).</dt><dd><p>Default rates values for the approval rates such that the
+element i it proportion of delinquents when approving
+<cite>approval_rate[i]</cite> of the population.</p>
+</dd>
+<dt>optimal_rate: array-like, shape (n_samples,).</dt><dd><p>Optimal default rates for a perfect model.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Serasa Experian DataLab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datalib.metrics._plot.cap_curve &mdash; DataLib  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            DataLib
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">DataLib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">datalib.metrics._plot.cap_curve</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for datalib.metrics._plot.cap_curve</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module containing the implementar for CAP Curve Display.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics._base</span> <span class="kn">import</span> <span class="n">_check_pos_label_consistency</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics._plot.base</span> <span class="kn">import</span> <span class="n">_get_response</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_matplotlib_support</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">cap_curve</span>
+
+
+<div class="viewcode-block" id="CAPCurveDisplay"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.CAPCurveDisplay">[docs]</a><span class="k">class</span> <span class="nc">CAPCurveDisplay</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CAP Curve visualization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cumulative_gains : ndarray</span>
+<span class="sd">        Cumulative gain with each threshold (percentage of class 1).</span>
+
+<span class="sd">    thresholds : ndarray</span>
+<span class="sd">        Increasing thresholds (percentage of examples) on the decision</span>
+<span class="sd">        function used to compute cap curve.</span>
+
+<span class="sd">    positive_rate : ndarray</span>
+<span class="sd">        Rate of positive class examples to compute the perfect curve.</span>
+
+<span class="sd">    gini : float, default=None</span>
+<span class="sd">        Gini score. If None, the gini score is not shown.</span>
+
+<span class="sd">    estimator_name : str, default=None</span>
+<span class="sd">        Name of estimator. If None, the estimator name is not shown.</span>
+
+<span class="sd">    pos_label : str or int, default=None</span>
+<span class="sd">        The class considered as the positive class when computing</span>
+<span class="sd">        the CAP curve.</span>
+<span class="sd">        By default, `estimators.classes_[1]` is considered</span>
+<span class="sd">        as the positive class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line_ : matplotlib Artist</span>
+<span class="sd">        CAP Curve.</span>
+<span class="sd">    ax_ : matplotlib Axes</span>
+<span class="sd">        Axes with CAP Curve.</span>
+<span class="sd">    figure_ : matplotlib Figure</span>
+<span class="sd">        Figure containing the curve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">cumulative_gains</span><span class="p">,</span>
+        <span class="n">thresholds</span><span class="p">,</span>
+        <span class="n">positive_rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gini</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">estimator_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator_name</span> <span class="o">=</span> <span class="n">estimator_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cumulative_gains</span> <span class="o">=</span> <span class="n">cumulative_gains</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="n">thresholds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positive_rate</span> <span class="o">=</span> <span class="n">positive_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gini</span> <span class="o">=</span> <span class="n">gini</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span> <span class="o">=</span> <span class="n">pos_label</span>
+
+<div class="viewcode-block" id="CAPCurveDisplay.plot"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.CAPCurveDisplay.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">plot_random</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">plot_perfect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot visualization</span>
+<span class="sd">        Extra keyword arguments will be passed to matplotlib&#39;s ``plot``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : matplotlib axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name of CAP Curve for labeling. If `None`, use `estimator_name` if</span>
+<span class="sd">            not `None`, otherwise no labeling is shown.</span>
+
+<span class="sd">        plot_random : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline random curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        plot_perfect : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline perfect curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~sklearn.metrics.plot.CAPCurveDisplay`</span>
+<span class="sd">            Object that stores computed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="s2">&quot;CAPCurveDisplay.plot&quot;</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator_name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+
+        <span class="n">line_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gini</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">line_kwargs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (GINI = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gini</span><span class="si">:</span><span class="s2">0.2f</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gini</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">line_kwargs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Gini = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gini</span><span class="si">:</span><span class="s2">0.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">line_kwargs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="n">line_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">plot_random</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Random Model&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot_perfect</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_rate</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Perfect Model&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line_</span><span class="p">,)</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cumulative_gains</span><span class="p">,</span> <span class="o">**</span><span class="n">line_kwargs</span>
+        <span class="p">)</span>
+        <span class="n">info_pos_label</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot; (Positive label: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f Observations&quot;</span> <span class="o">+</span> <span class="n">info_pos_label</span>
+        <span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f Positive Observations&quot;</span> <span class="o">+</span> <span class="n">info_pos_label</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">line_kwargs</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="CAPCurveDisplay.from_estimator"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.CAPCurveDisplay.from_estimator">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_estimator</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">estimator</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">response_method</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_random</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">plot_perfect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a CAP Curve display from an estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        estimator : estimator instance</span>
+<span class="sd">            Fitted classifier or a fitted :class:`~sklearn.pipeline.Pipeline`</span>
+<span class="sd">            in which the last estimator is a classifier.</span>
+
+<span class="sd">        X : {array-like, sparse matrix} of shape (n_samples, n_features)</span>
+<span class="sd">            Input values.</span>
+
+<span class="sd">        y : array-like of shape (n_samples,)</span>
+<span class="sd">            Target values.</span>
+
+<span class="sd">        sample_weight : array-like of shape (n_samples,), default=None</span>
+<span class="sd">            Sample weights.</span>
+
+<span class="sd">        response_method : {&#39;predict_proba&#39;, &#39;decision_function&#39;, &#39;auto&#39;} \</span>
+<span class="sd">                default=&#39;auto&#39;</span>
+<span class="sd">            Specifies whether to use :term:`predict_proba` or</span>
+<span class="sd">            :term:`decision_function` as the target response. If set to &#39;auto&#39;,</span>
+<span class="sd">            :term:`predict_proba` is tried first and if it does not exist</span>
+<span class="sd">            :term:`decision_function` is tried next.</span>
+
+<span class="sd">        pos_label : str or int, default=None</span>
+<span class="sd">            The class considered as the positive class when computing the</span>
+<span class="sd">            ROC-AUC metric. By default, `estimators.classes_[1]` is considered</span>
+<span class="sd">            as the positive class.</span>
+
+<span class="sd">        plot_random : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline random curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        plot_perfect : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline perfect curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name of CAP Curve for labeling. If `None`, use the name of the</span>
+<span class="sd">            estimator.</span>
+
+<span class="sd">        ax : matplotlib axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">        created.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Keyword arguments to be passed to matplotlib&#39;s `plot`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~sklearn.metrics.plot.CAPCurveDisplay`</span>
+<span class="sd">            The ROC Curve display.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
+<span class="sd">        &gt;&gt;&gt; from datalib.metrics import CAPCurveDisplay</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.svm import SVC</span>
+<span class="sd">        &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(X, y)</span>
+<span class="sd">        &gt;&gt;&gt; clf = SVC(random_state=0).fit(X_train, y_train)</span>
+<span class="sd">        &gt;&gt;&gt; CAPCurveDisplay.from_estimator(clf, X_test, y_test)</span>
+<span class="sd">        &gt;&gt;&gt; plt.show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_estimator&quot;</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+
+        <span class="n">y_score</span><span class="p">,</span> <span class="n">pos_label</span> <span class="o">=</span> <span class="n">_get_response</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="n">estimator</span><span class="p">,</span>
+            <span class="n">response_method</span><span class="o">=</span><span class="n">response_method</span><span class="p">,</span>
+            <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">y_score</span><span class="o">=</span><span class="n">y_score</span><span class="p">,</span>
+            <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span>
+            <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span><span class="p">,</span>
+            <span class="n">plot_random</span><span class="o">=</span><span class="n">plot_random</span><span class="p">,</span>
+            <span class="n">plot_perfect</span><span class="o">=</span><span class="n">plot_perfect</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="CAPCurveDisplay.from_predictions"><a class="viewcode-back" href="../../../../datalib.metrics.html#datalib.metrics.CAPCurveDisplay.from_predictions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_predictions</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">y_true</span><span class="p">,</span>
+        <span class="n">y_score</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pos_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">plot_random</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">plot_perfect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot CAP curve given the true and predicted score.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y_true : array-like of shape (n_samples,)</span>
+<span class="sd">            True labels.</span>
+
+<span class="sd">        y_score : array-like of shape (n_samples,)</span>
+<span class="sd">            Target scores, can either be probability estimates of the positive</span>
+<span class="sd">            class, confidence values, or non-thresholded measure of decisions</span>
+<span class="sd">            (as returned by “decision_function” on some classifiers).</span>
+
+<span class="sd">        sample_weight : array-like of shape (n_samples,), default=None</span>
+<span class="sd">            Sample weights.</span>
+
+<span class="sd">        pos_label : str or int, default=None</span>
+<span class="sd">            The label of the positive class. When `pos_label=None`, if `y_true`</span>
+<span class="sd">            is in {-1, 1} or {0, 1}, `pos_label` is set to 1, otherwise an</span>
+<span class="sd">            error will be raised.</span>
+
+<span class="sd">        plot_random : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline random curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        plot_perfect : boolean, default = False</span>
+<span class="sd">            Flag indicating whether to plot the baseline perfect curve (True)</span>
+<span class="sd">            or not (False).</span>
+
+<span class="sd">        name : str, default=None</span>
+<span class="sd">            Name of ROC curve for labeling. If `None`, name will be set to</span>
+<span class="sd">            `&quot;Classifier&quot;`.</span>
+
+<span class="sd">        ax : matplotlib axes, default=None</span>
+<span class="sd">            Axes object to plot on. If `None`, a new figure and axes is</span>
+<span class="sd">            created.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keywords arguments passed to matplotlib `plot` function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        display : :class:`~sklearn.metrics.CAPCurveDisplay`</span>
+<span class="sd">            Object that stores computed values.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
+<span class="sd">        &gt;&gt;&gt; from datalib.metrics import CAPCurveDisplay</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">        &gt;&gt;&gt; from sklearn.svm import SVC</span>
+<span class="sd">        &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(X, y)</span>
+<span class="sd">        &gt;&gt;&gt; clf = SVC(random_state=0, probability=True).fit(X_train, y_train)</span>
+<span class="sd">        &gt;&gt;&gt; y_pred = clf.predict_proba(X_test)[:, 1]</span>
+<span class="sd">        &gt;&gt;&gt; CAPCurveDisplay.from_predictions(y_test, y_pred)</span>
+<span class="sd">        &gt;&gt;&gt; plt.show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_matplotlib_support</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_predictions&quot;</span><span class="p">)</span>
+
+        <span class="n">cumulative_gains</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">gini</span> <span class="o">=</span> <span class="n">cap_curve</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="p">,</span> <span class="n">y_score</span><span class="p">,</span> <span class="n">sample_weight</span>
+        <span class="p">)</span>
+        <span class="n">positive_rate</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="k">if</span> <span class="n">plot_perfect</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Classifier&quot;</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="n">pos_label</span> <span class="o">=</span> <span class="n">_check_pos_label_consistency</span><span class="p">(</span><span class="n">pos_label</span><span class="p">,</span> <span class="n">y_true</span><span class="p">)</span>
+
+        <span class="n">viz</span> <span class="o">=</span> <span class="n">CAPCurveDisplay</span><span class="p">(</span>
+            <span class="n">cumulative_gains</span><span class="o">=</span><span class="n">cumulative_gains</span><span class="p">,</span>
+            <span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">,</span>
+            <span class="n">positive_rate</span><span class="o">=</span><span class="n">positive_rate</span><span class="p">,</span>
+            <span class="n">gini</span><span class="o">=</span><span class="n">gini</span><span class="p">,</span>
+            <span class="n">estimator_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">pos_label</span><span class="o">=</span><span class="n">pos_label</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">plot_random</span><span class="o">=</span><span class="n">plot_random</span><span class="p">,</span>
+            <span class="n">plot_perfect</span><span class="o">=</span><span class="n">plot_perfect</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Serasa Experian DataLab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
