@@ -15,7 +15,6 @@ def bootstrap_metric(metric, *args, random_state=42, n_bootstrap=20, **kwargs):
     if not all_equal_size(
         [len(array) for array in list(kwargs.values()) + list(args)]
     ):
-        msg_error_size = 
         raise ValueError(
             "All the elements to be bootstraped (*args and **kwargs) "
             "are not equal in length."
