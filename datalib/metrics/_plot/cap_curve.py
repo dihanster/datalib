@@ -4,7 +4,7 @@ Module containing the implementar for CAP Curve Display.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sklearn.metrics._base import _check_pos_label_consistency
+from sklearn.utils.validation import _check_pos_label_consistency
 from sklearn.metrics._plot.base import _get_response
 from sklearn.utils import check_matplotlib_support
 
