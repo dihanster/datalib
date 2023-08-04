@@ -1,3 +1,3 @@
-from .validation import all_equal_size
+from .validation import all_equal_elements
 
-__all__ = [all_equal_size]
+__all__ = [all_equal_elements]

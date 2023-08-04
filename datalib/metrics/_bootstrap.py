@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.utils import check_array, check_random_state
 
-from ..utils import all_equal_size
+from ..utils import all_equal_elements
 
 
 def bootstrap_metric(metric, *args, random_state=42, n_bootstrap=20, **kwargs):
@@ -12,7 +12,7 @@ def bootstrap_metric(metric, *args, random_state=42, n_bootstrap=20, **kwargs):
         for k, v in kwargs.items()
     }
 
-    if not all_equal_size(
+    if not all_equal_elements(
         [len(array) for array in list(kwargs.values()) + list(args)]
     ):
         raise ValueError(

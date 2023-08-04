@@ -1,4 +1,4 @@
-def all_equal_size(iterator):
+def all_equal_elements(iterator):
     iterator = iter(iterator)
     try:
         first = next(iterator)
