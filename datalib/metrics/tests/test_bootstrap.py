@@ -3,6 +3,7 @@ Module with the test for the bootstraps wraping metrics functions.
 """
 
 import pytest
+import functools
 
 from sklearn import datasets
 from sklearn import metrics as sk_metrics
