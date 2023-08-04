@@ -4,7 +4,7 @@ Module containing the main metrics for ranking.
 import numpy as np
 
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics._base import _check_pos_label_consistency
+from sklearn.utils.validation import _check_pos_label_consistency
 from sklearn.utils import (
     assert_all_finite,
     check_array,

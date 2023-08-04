@@ -7,9 +7,14 @@ from ..utils import all_equal_size
 def bootstrap_metric(metric, *args, random_state=42, n_bootstrap=20, **kwargs):
     """TODO"""
     args = [check_array(v, ensure_2d=False, dtype=None) for v in args]
-    kwargs = {k: check_array(v, ensure_2d=False, dtype=None) for k, v in kwargs.items()}
+    kwargs = {
+        k: check_array(v, ensure_2d=False, dtype=None)
+        for k, v in kwargs.items()
+    }
 
-    if not all_equal_size([len(array) for array in list(kwargs.values()) + list(args)]):
+    if not all_equal_size(
+        [len(array) for array in list(kwargs.values()) + list(args)]
+    ):
         msg_error_size = "All the elements to be bootstraped (*args and **kwargs) are not equal in length."
         raise ValueError(msg_error_size)
 

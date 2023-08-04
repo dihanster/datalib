@@ -21,7 +21,7 @@ iris = datasets.load_iris()
     [
         sk_metrics.accuracy_score,
         sk_metrics.f1_score,
-        functools.partial(sk_metrics.fbeta_score, beta=3, average='macro'),
+        functools.partial(sk_metrics.fbeta_score, beta=3, average="macro"),
     ],
 )
 @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ def test_bootstrap_metric_binary_classification(metric, sample_weight):
     # TODO: Ok. it is running, but what do I want to assert here?
     bootstrap_metric(
         metric,
-        y, # y_true will enter as a arg
-        pred, # y_pred will enter as a arg
-        sample_weight=sample_weight, # sample_weight will enter as a kwarg
+        y,  # y_true will enter as a arg
+        pred,  # y_pred will enter as a arg
+        sample_weight=sample_weight,  # sample_weight will enter as a kwarg
     )
