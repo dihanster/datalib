@@ -9,7 +9,8 @@ Welcome to DataLib's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   Metrics <datalib.metrics>
+   Model Selection <datalib.model_selection>
 
 
 Indices and tables
