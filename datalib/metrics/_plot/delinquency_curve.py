@@ -1,5 +1,5 @@
-from sklearn.metrics._base import _check_pos_label_consistency
-from sklearn.metrics._plot.base import _get_response
+from sklearn.utils.validation import _check_pos_label_consistency
+from sklearn.utils._plotting import _BinaryClassifierCurveDisplayMixin
 from sklearn.utils import (
     check_matplotlib_support,
 )
@@ -7,7 +7,7 @@ from sklearn.base import is_classifier
 from datalib.metrics import delinquency_curve
 
 
-class DeliquencyDisplay:
+class DeliquencyDisplay(_BinaryClassifierCurveDisplayMixin):
     """Deliquency curve visualization.
     It is recommended to use
     :func:`~datalib.DeliquencyDisplay.from_estimator` or
@@ -245,8 +245,8 @@ class DeliquencyDisplay:
         if not is_classifier(estimator):
             raise ValueError("'estimator' should be a fitted classifier.")
 
-        y_prob, pos_label = _get_response(
-            X, estimator, response_method="predict_proba", pos_label=pos_label
+        y_prob, pos_label, name = cls._validate_and_get_response_values(
+            estimator, X, y, pos_label=pos_label, name=name
         )
 
         name = name if name is not None else estimator.__class__.__name__
