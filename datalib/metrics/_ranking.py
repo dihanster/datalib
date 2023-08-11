@@ -4,7 +4,6 @@ Module containing the main metrics for ranking.
 import numpy as np
 
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics._base import _check_pos_label_consistency
 from sklearn.utils import (
     assert_all_finite,
     check_array,
@@ -12,7 +11,10 @@ from sklearn.utils import (
     column_or_1d,
 )
 from sklearn.utils.multiclass import type_of_target
-from sklearn.utils.validation import _check_sample_weight
+from sklearn.utils.validation import (
+    _check_sample_weight,
+    _check_pos_label_consistency,
+)
 
 
 def cap_curve(
