@@ -192,3 +192,67 @@ def test_delinquency_curve__multilabel_exception():
         str(exc_info.value)
         == "Only binary classification is supported. Provided [0 1 2]."
     )
+
+
+def test_delinquency_curve__success_case_sample_weight():
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+    approval_rate, default_rate, optimal_rate = delinquency_curve(
+        y_true, y_scores
+    )
+
+    assert_array_equal(approval_rate, np.array([0, 0.25, 0.5, 0.75, 1.0]))
+    assert_almost_equal(
+        default_rate, np.array([0, 0, 0.5, 0.3333333, 0.5]), decimal=5
+    )
+    assert_almost_equal(
+        optimal_rate, np.array([0, 0, 0, 0.3333333, 0.5]), decimal=5
+    )
+
+    sample_weight = np.array([1, 0.1, 1, 1])
+
+    approval_rate, default_rate, optimal_rate = delinquency_curve(
+        y_true, y_scores, sample_weight=sample_weight
+    )
+
+    assert_array_equal(approval_rate, np.array([0, 0.25, 0.5, 0.75, 1.0]))
+    assert_almost_equal(
+        default_rate, np.array([0, 0, 0.5, 0.4761904, 0.645161]), decimal=5
+    )
+    assert_almost_equal(
+        optimal_rate, np.array([0, 0, 0, 0.4761904, 0.645161]), decimal=5
+    )
+
+
+def test_delinquency_curve__sample_weights():
+    y_true = np.array([0, 0, 1, 1])
+    y_scores = np.array([0.1, 0.4, 0.3, 0.8])
+
+    _, default_rate__none, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=None
+    )
+    _, default_rate__np_ones, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=np.ones(len(y_scores))
+    )
+    assert_array_equal(default_rate__np_ones, default_rate__none)
+
+    _, default_rate__list, _ = delinquency_curve(
+        y_true, y_scores, sample_weight=4 * np.ones(len(y_scores))
+    )
+    assert_array_equal(default_rate__none, default_rate__list)
+
+
+def test_delinquency_curve__exponential_time_scalar(iris_data_binary):
+    X, y_true = iris_data_binary
+    y_scores = np.random.beta(1, 1, size=len(y_true))
+    sample_weight = np.random.RandomState(42).exponential(size=len(y_true))
+
+    _, default_rate_list_exponential, _ = delinquency_curve(
+        y_true, y_scores, sample_weight
+    )
+    _, default_rate_list_exponential_constant, _ = delinquency_curve(
+        y_true, y_scores, 42 * sample_weight
+    )
+    assert_array_equal(
+        default_rate_list_exponential, default_rate_list_exponential_constant
+    )

@@ -75,7 +75,7 @@ def cap_curve(
     raise NotImplementedError("Only binary class supported!")
 
 
-def delinquency_curve(y_true, y_score, pos_label=None):
+def delinquency_curve(y_true, y_score, pos_label=None, sample_weight=None):
     """Delinquency curve for a binary classification.
 
     The delinquency curve shows how the default rate (proportion of
@@ -103,6 +103,9 @@ def delinquency_curve(y_true, y_score, pos_label=None):
 
     pos_label : int or str, default=None
         The label of the positive class.
+
+    sample_weight : array-like of shape (n_samples,), default=None
+        Sample weights.
 
     Returns
     -------
@@ -135,12 +138,22 @@ def delinquency_curve(y_true, y_score, pos_label=None):
     scores_idxs = np.argsort(y_score)[::1]
     actual_idxs = np.argsort(y_true)[::1]
 
+    weights = _check_sample_weight(
+        sample_weight, y_true, only_non_negative=True
+    )
+
+    weights = weights / weights.max()
     y_true_sorted_by_scores = y_true[scores_idxs].copy()
     y_true_sorted = y_true[actual_idxs].copy()
+    sorted_weights = weights[scores_idxs].copy()
 
-    list_index = np.arange(1, len(y_true_sorted_by_scores) + 1)
-    approval_rate = np.append(0, list_index / len(list_index))
-    default_rate = np.append(0, y_true_sorted_by_scores.cumsum() / list_index)
-    optimal_rate = np.append(0, y_true_sorted.cumsum() / list_index)
+    step_approval_rate = 1 / len(y_true_sorted_by_scores)
+    approval_rate = np.arange(0, 1 + step_approval_rate, step_approval_rate)
+    default_rate = np.append(
+        0, y_true_sorted_by_scores.cumsum() / sorted_weights.cumsum()
+    )
+    optimal_rate = np.append(
+        0, y_true_sorted.cumsum() / sorted_weights.cumsum()
+    )
 
     return approval_rate, default_rate, optimal_rate
