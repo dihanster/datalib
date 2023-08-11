@@ -4,14 +4,13 @@ Module containing the implementar for CAP Curve Display.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from sklearn.metrics._base import _check_pos_label_consistency
-from sklearn.metrics._plot.base import _get_response
+from sklearn.utils.validation import _check_pos_label_consistency
 from sklearn.utils import check_matplotlib_support
-
+from sklearn.utils._plotting import _BinaryClassifierCurveDisplayMixin
 from .. import cap_curve
 
 
-class CAPCurveDisplay:
+class CAPCurveDisplay(_BinaryClassifierCurveDisplayMixin):
     """CAP Curve visualization.
 
     Parameters
@@ -231,13 +230,13 @@ class CAPCurveDisplay:
         """
         check_matplotlib_support(f"{cls.__name__}.from_estimator")
 
-        name = estimator.__class__.__name__ if name is None else name
-
-        y_score, pos_label = _get_response(
-            X,
+        y_score, pos_label, name = cls._validate_and_get_response_values(
             estimator,
+            X,
+            y,
             response_method=response_method,
             pos_label=pos_label,
+            name=name,
         )
 
         return cls.from_predictions(
