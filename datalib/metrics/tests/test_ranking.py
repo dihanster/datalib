@@ -240,3 +240,19 @@ def test_delinquency_curve__sample_weights():
         y_true, y_scores, sample_weight=4 * np.ones(len(y_scores))
     )
     assert_array_equal(default_rate__none, default_rate__list)
+
+
+def test_delinquency_curve__exponential_time_scalar(iris_data_binary):
+    X, y_true = iris_data_binary
+    y_scores = np.random.beta(1, 1, size=len(y_true))
+    sample_weight = np.random.RandomState(42).exponential(size=len(y_true))
+
+    _, default_rate_list_exponential, _ = delinquency_curve(
+        y_true, y_scores, sample_weight
+    )
+    _, default_rate_list_exponential_constant, _ = delinquency_curve(
+        y_true, y_scores, 42 * sample_weight
+    )
+    assert_array_equal(
+        default_rate_list_exponential, default_rate_list_exponential_constant
+    )
